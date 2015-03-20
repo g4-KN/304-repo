@@ -15,21 +15,24 @@ public class LocalConnection {
 	public LocalConnection() {
 		localConnection = this;
 		try {
+			Class.forName("com.mysql.jdbc.Driver");
 			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
+		} catch (ClassNotFoundException cnfe) {
+			cnfe.printStackTrace();
+			System.out.println("Add MySQL to your IDE/Server.");
+			System.exit(-1);
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
 			System.out.println("Could not establish driver");
 			System.exit(-1);
 		}
 		
-		String ubcConnectionUrl = "jdbc:oracle:thin:@dbhost.ugrad.cs.ubc.ca:1522:ug";
-		
 		try {
-			connection = DriverManager.getConnection(ubcConnectionUrl, "ora_q8p8", "a31827116");
-			System.out.println("Connection established with Oracle database");
+			connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/cpsc304", "root", "");
+			System.out.println("Connection established with Local MySQL database");
 		} catch (SQLException sqle) {
 			sqle.printStackTrace();
-			System.out.println("Could not establish connection to Oracle database");
+			System.out.println("Could not establish connection to Local MySQL database");
 			System.exit(-1);
 		}
 	}
@@ -49,12 +52,11 @@ public class LocalConnection {
 		LocalConnection lc = getLocalConnection();
 		Connection con = lc.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("INSERT INTO test values (7,1)");
+			PreparedStatement ps = con.prepareStatement("INSERT INTO test values (2,1)");
 			ps.executeUpdate();
-			con.commit();
 			ps.close();
 		} catch (Exception e) {
-			System.out.println("GG");
+			System.out.println("Test Failed");
 		}
 	}
 }
