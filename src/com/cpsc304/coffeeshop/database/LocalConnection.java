@@ -16,14 +16,9 @@ public class LocalConnection {
 		localConnection = this;
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			DriverManager.registerDriver(new oracle.jdbc.driver.OracleDriver());
 		} catch (ClassNotFoundException cnfe) {
 			cnfe.printStackTrace();
 			System.out.println("Add MySQL to your IDE/Server.");
-			System.exit(-1);
-		} catch (SQLException sqle) {
-			sqle.printStackTrace();
-			System.out.println("Could not establish driver");
 			System.exit(-1);
 		}
 		
@@ -52,7 +47,7 @@ public class LocalConnection {
 		LocalConnection lc = getLocalConnection();
 		Connection con = lc.getConnection();
 		try {
-			PreparedStatement ps = con.prepareStatement("INSERT INTO test values (2,1)");
+			PreparedStatement ps = con.prepareStatement("INSERT INTO test values (10,1)");
 			ps.executeUpdate();
 			ps.close();
 		} catch (Exception e) {
