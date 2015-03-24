@@ -46,12 +46,32 @@ public class LocalConnection {
 	public static void main(String[] args) {
 		LocalConnection lc = getLocalConnection();
 		Connection con = lc.getConnection();
-		try {
-			PreparedStatement ps = con.prepareStatement("INSERT INTO test values (2,1)");
-			ps.executeUpdate();
-			ps.close();
-		} catch (Exception e) {
-			System.out.println("Test Failed");
-		}
+        testQuery(con);
+//		try {
+//			PreparedStatement ps = con.prepareStatement("insert into PostalCodeReference values ('v1v1v1', 'van', 'bc')");
+//			ps.executeUpdate();
+//			ps.close();
+//		} catch (Exception e) {
+//			System.out.println("Test Failed");
+//		}
 	}
+
+    public static void testQuery(Connection con) {
+        String query = "select * from PostalCodeReference";
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            PreparedStatement ps = con.prepareStatement("select * from PostalCodeReference");
+            while (rs.next()){
+                String pc = rs.getString("PostalCode");
+                String ct = rs.getString("City");
+                String pv = rs.getString("Province");
+                System.out.println(pc + ", " + ct + ", " + pv);
+
+            }
+        } catch (Exception e) {
+            System.out.println("Test Failed");
+        }
+    }
+
 }

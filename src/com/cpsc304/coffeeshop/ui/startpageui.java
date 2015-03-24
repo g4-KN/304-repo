@@ -32,7 +32,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
  
-public class StartPageUI extends Application {
+public class startpageui extends Application {
 	
 	public static final String Column1MapKey = "A";
 	public static final String Column2MapKey = "B";
