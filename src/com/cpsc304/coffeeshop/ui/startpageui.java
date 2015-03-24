@@ -9,17 +9,20 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -38,6 +41,11 @@ public class StartPageUI extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
+	
+	public void setUpViewStage() {
+		stage.setWidth(1200);
+		stage.setHeight(700);
+	}
 
 	@Override
 	 public void start(Stage primaryStage) throws Exception {
@@ -52,7 +60,10 @@ public class StartPageUI extends Application {
 	
 	}
 	
-	public Scene logInScene(){
+	public Scene logInScene() {
+		stage.setWidth(440);
+		stage.setHeight(440);
+		
         VBox menuButtons = new VBox();
         menuButtons.setSpacing(10);
         menuButtons.setPadding(new Insets(10, 0, 0, 10));
@@ -70,7 +81,7 @@ public class StartPageUI extends Application {
 		
 		customerButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
-				 stage.setScene(CustomerScene());
+				 stage.setScene(customerScene());
 			}
 		});
 		
@@ -100,13 +111,50 @@ public class StartPageUI extends Application {
 		
 		
 		menuButtons.getChildren().addAll(title, customerButton, memberButton, employeeButton, managerButton, adminButton);
-		return new Scene(menuButtons);   
+		return new Scene(menuButtons);
     }
 	
 	
-    protected Scene CustomerScene() {
-    	final Label label = new Label("Customer Information");
-        label.setFont(new Font("Arial", 20));
+    protected Scene customerScene() {
+    	setUpViewStage();
+    	HBox toolBar = new HBox();
+    	toolBar.setSpacing(10);
+    	
+		final Label title = new Label("Customer View");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, 20));
+        
+        Button backButton = new Button("Back");
+        backButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				 stage.setScene(logInScene());
+			}
+		});
+        
+        toolBar.getChildren().addAll(title, backButton);
+        
+        HBox optionBar = new HBox();
+        optionBar.setSpacing(10);
+        
+        Button findStores = new Button("Find Stores");
+        // TODO: Add action handler to put stuff into the table
+        final Separator optionBarSeparator = new Separator();
+        optionBarSeparator.setOrientation(Orientation.VERTICAL);
+        final Label storeId = new Label("Store ID:");
+        storeId.setFont(Font.font("Arial", 16));
+        final TextField productStoreId = new TextField();
+        Button findProducts = new Button("Find Products");
+        findProducts.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+		        // TODO: Add action handler to put stuff into the table
+				String input = productStoreId.getText();
+				System.out.println(input);
+				productStoreId.clear();
+			}
+		});
+        
+        optionBar.getChildren().addAll(findStores, optionBarSeparator, storeId, productStoreId, findProducts);
+        
+ 
  
         TableColumn<Map, String> firstDataColumn = new TableColumn<>("CustomerName");
         TableColumn<Map, String> secondDataColumn = new TableColumn<>("CustomerAddress");
@@ -140,20 +188,11 @@ public class StartPageUI extends Application {
     };
         firstDataColumn.setCellFactory(cellFactoryForMap);
         secondDataColumn.setCellFactory(cellFactoryForMap);
-        
-        Button backButton = new Button("Back");
-		
-        backButton.setOnAction(new EventHandler<ActionEvent> () {
-			public void handle(ActionEvent event) {
-				 stage.setScene(logInScene());
-			}
-		});
- 
     	
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, backButton, tableView);
+        vbox.getChildren().addAll(toolBar, optionBar, tableView);
         return new Scene(vbox);
     }
 	
