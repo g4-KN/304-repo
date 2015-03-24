@@ -3,6 +3,7 @@ package com.cpsc304.coffeeshop.ui;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.cpsc304.coffeeshop.service.MemberServiceImpl;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
