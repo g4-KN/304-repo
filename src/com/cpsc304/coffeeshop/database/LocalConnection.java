@@ -68,6 +68,7 @@ public class LocalConnection {
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
+
             while (rs.next()){
                 Map<String, String> nm = new HashMap<>();
                 nm.put("PostalCode", rs.getString("PostalCode"));
@@ -75,11 +76,29 @@ public class LocalConnection {
                 nm.put("Province", rs.getString("Province"));
                 resultData.add(nm);
             }
+
         } catch (Exception e) {
             System.out.println("Test Failed");
         }
         return resultData;
+    }
 
+    public static boolean testUpdate(Connection con,  String query, String value,  String pVal) {
+        try {
+			PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, value);
+            ps.setString(2, value);
+			ps.executeUpdate();
+			ps.close();
+            return true;
+		} catch (Exception e) {
+			System.out.println("Test Failed");
+		}
+        return false;
+    }
+
+    public static String constructUpdateQuery(String table, String column, String pKey) {
+        return "update " + table + " set " + column + " = ? where " + pKey + " = ?";
     }
 
 }
