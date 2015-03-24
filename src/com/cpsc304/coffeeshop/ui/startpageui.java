@@ -11,7 +11,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -22,17 +21,27 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.VBoxBuilder;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
  
 public class StartPageUI extends Application {
+	
+	public static final int SPLASH_FONT_SIZE = 28;
+	public static final int TITLE_FONT_SIZE = 20;
+	public static final int LABEL_FONT_SIZE = 16;
+	
+	public static final int MAIN_VBOX_SPACING = 20;
+	public static final int BAR_HBOX_SPACING = 10;
 	
 	public static final String Column1MapKey = "A";
 	public static final String Column2MapKey = "B";
@@ -45,6 +54,14 @@ public class StartPageUI extends Application {
 	public void setUpViewStage() {
 		stage.setWidth(1200);
 		stage.setHeight(700);
+	}
+	
+	public void errorPopup(String msg) {
+		// Adapted from: http://stackoverflow.com/questions/8309981/how-to-create-and-show-common-dialog-error-warning-confirmation-in-javafx-2
+		Stage dialogStage = new Stage();
+		dialogStage.initModality(Modality.WINDOW_MODAL);
+		dialogStage.setScene(new Scene(VBoxBuilder.create().children(new Text(msg)).alignment(Pos.CENTER).padding(new Insets(10)).build()));
+		dialogStage.show();
 	}
 
 	@Override
@@ -65,12 +82,12 @@ public class StartPageUI extends Application {
 		stage.setHeight(440);
 		
         VBox menuButtons = new VBox();
-        menuButtons.setSpacing(10);
+        menuButtons.setSpacing(MAIN_VBOX_SPACING);
         menuButtons.setPadding(new Insets(10, 0, 0, 10));
         menuButtons.setAlignment(Pos.CENTER);
         
         final Label title = new Label("Coffee Shop Application");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, 20));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, SPLASH_FONT_SIZE));
         
         Button customerButton = new Button("Customer");
         Button memberButton = new Button(" Member ");
@@ -86,8 +103,8 @@ public class StartPageUI extends Application {
 		});
 		
 		memberButton.setOnAction(new EventHandler<ActionEvent> () {
-			public void handle(ActionEvent stage) {
-				testLabel.setText("tegaerg");
+			public void handle(ActionEvent event) {
+				stage.setScene(memberScene());
 			}
 		});
 		
@@ -118,10 +135,10 @@ public class StartPageUI extends Application {
     protected Scene customerScene() {
     	setUpViewStage();
     	HBox toolBar = new HBox();
-    	toolBar.setSpacing(10);
+    	toolBar.setSpacing(BAR_HBOX_SPACING);
     	
 		final Label title = new Label("Customer View");
-        title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, 20));
+        title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, TITLE_FONT_SIZE));
         
         Button backButton = new Button("Back");
         backButton.setOnAction(new EventHandler<ActionEvent> () {
@@ -133,14 +150,14 @@ public class StartPageUI extends Application {
         toolBar.getChildren().addAll(title, backButton);
         
         HBox optionBar = new HBox();
-        optionBar.setSpacing(10);
+        optionBar.setSpacing(BAR_HBOX_SPACING);
         
         Button findStores = new Button("Find Stores");
         // TODO: Add action handler to put stuff into the table
         final Separator optionBarSeparator = new Separator();
         optionBarSeparator.setOrientation(Orientation.VERTICAL);
         final Label storeId = new Label("Store ID:");
-        storeId.setFont(Font.font("Arial", 16));
+        storeId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final TextField productStoreId = new TextField();
         Button findProducts = new Button("Find Products");
         findProducts.setOnAction(new EventHandler<ActionEvent> () {
@@ -190,12 +207,177 @@ public class StartPageUI extends Application {
         secondDataColumn.setCellFactory(cellFactoryForMap);
     	
         final VBox vbox = new VBox();
-        vbox.setSpacing(5);
+        vbox.setSpacing(MAIN_VBOX_SPACING);
         vbox.setPadding(new Insets(10, 0, 0, 10));
         vbox.getChildren().addAll(toolBar, optionBar, tableView);
         return new Scene(vbox);
     }
 	
+    protected Scene memberScene() {
+    	setUpViewStage();
+    	HBox toolBar = new HBox();
+    	toolBar.setSpacing(BAR_HBOX_SPACING);
+    	
+		final Label title = new Label("Member View");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, TITLE_FONT_SIZE));
+        
+        Button backButton = new Button("Back");
+        backButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				 stage.setScene(logInScene());
+			}
+		});
+        
+        toolBar.getChildren().addAll(title, backButton);
+        
+        HBox optionBar = new HBox();
+        optionBar.setSpacing(BAR_HBOX_SPACING);
+        
+        final Label memberId = new Label("Member ID:");
+        memberId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField memberField = new TextField();
+        Button profileButton = new Button("Get Profile");
+        final VBox profileForm = new VBox();
+        profileForm.setSpacing(10);
+        
+        GridPane formGrid = new GridPane();
+        
+        final Label memberName = new Label("Name:");
+        memberName.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField nameField = new TextField();
+        formGrid.add(memberName, 0, 0);
+        formGrid.add(nameField, 1, 0);
+        
+        final Label memberPhone = new Label("Phone:");
+        memberPhone.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField phoneField = new TextField();
+        formGrid.add(memberPhone, 0, 1);
+        formGrid.add(phoneField, 1, 1);
+        
+        final Label memberHouse = new Label("House #:");
+        memberHouse.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField houseField = new TextField();
+        formGrid.add(memberHouse, 0, 2);
+        formGrid.add(houseField, 1, 2);
+        
+        final Label memberStreet = new Label("Street:");
+        memberStreet.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField streetField = new TextField();
+        formGrid.add(memberStreet, 0, 3);
+        formGrid.add(streetField, 1, 3);
+        
+        final Label memberPostalCode = new Label("Postal Code:");
+        memberPostalCode.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField postalCodeField = new TextField();
+        formGrid.add(memberPostalCode, 0, 4);
+        formGrid.add(postalCodeField, 1, 4);
+        
+        final Label memberCity = new Label("City:");
+        memberCity.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField cityField = new TextField();
+        formGrid.add(memberCity, 0, 5);
+        formGrid.add(cityField, 1, 5);
+        
+        final Label memberProv = new Label("Province:");
+        memberProv.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField provField = new TextField();
+        formGrid.add(memberProv, 0, 6);
+        formGrid.add(provField, 1, 6);
+        
+        final Label memberPoints = new Label("Points:");
+        memberPoints.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final Text points = new Text("0");
+        points.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        formGrid.add(memberPoints, 0, 7);
+        formGrid.add(points, 1, 7);        
+
+        Button changeNameButton = new Button("Change Name");
+        changeNameButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String input = nameField.getText();
+				if (input.isEmpty()) {
+					errorPopup("Please input a name!");
+				} else {
+			        // TODO: Call Service				
+				}
+				System.out.println(input);
+				nameField.clear();
+			}
+		});
+
+        Button changePhoneButton = new Button("Change Phone");
+        changePhoneButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String input = phoneField.getText();
+				if (input.isEmpty()) {
+					errorPopup("Please input a phone number!");
+				} else {
+			        // TODO: Call Service				
+				}
+				System.out.println(input);
+				phoneField.clear();
+			}
+		});
+        
+        Button changeAddress = new Button("Change Address");
+        changeAddress.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String houseInput = houseField.getText();
+				String streetInput = streetField.getText();
+				String postalCodeInput = postalCodeField.getText();
+				String cityInput = cityField.getText();
+				String provInput = provField.getText();
+				if (houseInput.isEmpty() || streetInput.isEmpty() || postalCodeInput.isEmpty() || cityInput.isEmpty() || provInput.isEmpty()) {
+					errorPopup("Please input a FULL address!");
+				} else {
+			        // TODO: Call Service				
+				}
+				houseField.clear();
+				streetField.clear();
+				postalCodeField.clear();
+				cityField.clear();
+				provField.clear();
+			}
+		});
+        profileForm.getChildren().addAll(formGrid, changeNameButton, changePhoneButton, changeAddress);
+        
+        profileButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String input = memberField.getText();
+				if (input.isEmpty()) {
+					errorPopup("Please enter a member ID!");
+				} else {
+					nameField.clear();
+					phoneField.clear();
+					houseField.clear();
+					streetField.clear();
+					postalCodeField.clear();
+					cityField.clear();
+					provField.clear();
+					points.setText("0");
+					// TODO: GOTO DATABASE AND SET THINGS IN UI
+					// TODO: DON'T FORGET TO CHECK IF THE MEMBER DOESN'T EXIST
+					nameField.setText("Chris Poon");
+					phoneField.setText("12345678");
+					houseField.setText("1234");
+					streetField.setText("ayy lmao street");
+					postalCodeField.setText("A1B2C3");
+					cityField.setText("Vancouver");
+					provField.setText("BC");
+					points.setText("over 9000");
+					
+				}
+			}
+		});
+        
+        optionBar.getChildren().addAll(memberId, memberField, profileButton);
+        
+        final VBox vbox = new VBox();
+        vbox.setSpacing(MAIN_VBOX_SPACING);
+        vbox.setPadding(new Insets(10, 0, 0, 10));
+        vbox.getChildren().addAll(toolBar, optionBar, profileForm);
+        return new Scene(vbox);
+    }
 	
     private ObservableList<Map> generateDataInMap() {
         int max = 10;
