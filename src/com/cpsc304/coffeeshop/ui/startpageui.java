@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -22,94 +23,84 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
  
-public class startpageui extends Application {
+public class StartPageUI extends Application {
 	
-	Button customerbutton, memberbutton, employeebutton, managerbutton, adminbutton;
-	Label somelabel;
 	public static final String Column1MapKey = "A";
 	public static final String Column2MapKey = "B";
 	private Stage stage;
 	
 	public static void main(String[] args) {
 		launch(args);
-		
 	}
-	
-	
 
 	@Override
 	 public void start(Stage primaryStage) throws Exception {
 		// TODO Auto-generated method stub
-
-		
-		 stage = primaryStage;
-		 primaryStage.setTitle("Table View Sample");
-		 primaryStage.setWidth(440);
-		 primaryStage.setHeight(700);
-	        Scene scene = logInScene();
-	        primaryStage.setScene(scene);
-	        primaryStage.show();
-		
+		stage = primaryStage;
+		primaryStage.setTitle("Table View Sample");
+		primaryStage.setWidth(440);
+		primaryStage.setHeight(700);
+	    Scene scene = logInScene();
+	    primaryStage.setScene(scene);
+	    primaryStage.show();
 	
 	}
 	
 	public Scene logInScene(){
-        VBox menuButtons = new VBox(5);
-//        Button createAccountButton = new Button("create account");
-//        createAccountButton.setOnAction(new EventHandler<ActionEvent>(){
-//            public void handle(ActionEvent t){
-//                  stage.setScene(CreateAccountScene());
-//            }
-//       });
-//        root.getChildren().add(createAccountButton);
-//        return new Scene(root);
+        VBox menuButtons = new VBox();
+        menuButtons.setSpacing(10);
+        menuButtons.setPadding(new Insets(10, 0, 0, 10));
+        menuButtons.setAlignment(Pos.CENTER);
         
+        final Label title = new Label("Coffee Shop Application");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, 20));
         
-        
-		somelabel = new Label("idkwhttodo");
-		customerbutton = new Button("Customer");
-		memberbutton = new Button("Member");
-		employeebutton = new Button("Employee");
-		managerbutton = new Button("Manager");
-		adminbutton = new Button("Admin");		
-	     
-		adminbutton.setOnAction(new EventHandler<ActionEvent> () {
-			public void handle(ActionEvent stage) {
-				somelabel.setText("something");
-			}
-		});
+        Button customerButton = new Button("Customer");
+        Button memberButton = new Button(" Member ");
+        Button employeeButton = new Button("Employee");
+        Button managerButton = new Button(" Manager ");
+        Button adminButton = new Button("   Admin   ");
+        final Label testLabel = new Label();
 		
-		customerbutton.setOnAction(new EventHandler<ActionEvent> () {
+		customerButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
 				 stage.setScene(CustomerScene());
 			}
 		});
 		
-		memberbutton.setOnAction(new EventHandler<ActionEvent> () {
+		memberButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent stage) {
-				somelabel.setText("tegaerg");
+				testLabel.setText("tegaerg");
 			}
 		});
 		
-		employeebutton.setOnAction(new EventHandler<ActionEvent> () {
+		employeeButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent stage) {
-				somelabel.setText("fghrth");
+				testLabel.setText("fghrth");
 			}
 		});
 		
-		managerbutton.setOnAction(new EventHandler<ActionEvent> () {
+		managerButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent stage) {
-				somelabel.setText("ppp");
+				testLabel.setText("ppp");
 			}
-		});	
+		});
+	     
+        adminButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent stage) {
+				testLabel.setText("something");
+			}
+		});
 		
 		
-		menuButtons.getChildren().addAll(somelabel, adminbutton, employeebutton, customerbutton, memberbutton, managerbutton);
-		 return new Scene(menuButtons);   
+		menuButtons.getChildren().addAll(title, customerButton, memberButton, employeeButton, managerButton, adminButton);
+		return new Scene(menuButtons);   
     }
 	
 	
@@ -149,12 +140,20 @@ public class startpageui extends Application {
     };
         firstDataColumn.setCellFactory(cellFactoryForMap);
         secondDataColumn.setCellFactory(cellFactoryForMap);
+        
+        Button backButton = new Button("Back");
+		
+        backButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				 stage.setScene(logInScene());
+			}
+		});
  
     	
         final VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(label, tableView);
+        vbox.getChildren().addAll(label, backButton, tableView);
         return new Scene(vbox);
     }
 	
