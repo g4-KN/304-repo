@@ -1,11 +1,17 @@
 package com.cpsc304.coffeeshop.database;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LocalConnection {
 	
@@ -56,22 +62,24 @@ public class LocalConnection {
 //		}
 	}
 
-    public static void testQuery(Connection con) {
+    public static ObservableList<Map> testQuery(Connection con) {
         String query = "select * from PostalCodeReference";
+        ObservableList<Map> resultData = FXCollections.observableArrayList();
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
-            PreparedStatement ps = con.prepareStatement("select * from PostalCodeReference");
             while (rs.next()){
-                String pc = rs.getString("PostalCode");
-                String ct = rs.getString("City");
-                String pv = rs.getString("Province");
-                System.out.println(pc + ", " + ct + ", " + pv);
-
+                Map<String, String> nm = new HashMap<>();
+                nm.put("PostalCode", rs.getString("PostalCode"));
+                nm.put("City", rs.getString("City"));
+                nm.put("Province", rs.getString("Province"));
+                resultData.add(nm);
             }
         } catch (Exception e) {
             System.out.println("Test Failed");
         }
+        return resultData;
+
     }
 
 }
