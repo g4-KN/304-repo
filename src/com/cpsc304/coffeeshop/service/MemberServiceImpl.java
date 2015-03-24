@@ -1,9 +1,6 @@
 package com.cpsc304.coffeeshop.service;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +43,29 @@ public class MemberServiceImpl {
             e.printStackTrace();
         }
         return resultData;
+    }
+
+    public  boolean updatePhoneNumber(int memberId, int phoneNumber) throws SQLException {
+        String query = "update Member set Phone = ? where MemberId = ?";
+        PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, phoneNumber);
+            stmt.setInt(2, memberId);
+            if (stmt.executeUpdate() != 0){
+                return true;
+            }
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+        }
+        return false;
     }
 
 }

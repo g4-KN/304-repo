@@ -39,7 +39,9 @@ public class startpageui extends Application {
 	public static final String Column2MapKey = "B";
 	private Stage stage;
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception{
+        MemberServiceImpl msi = new MemberServiceImpl();
+        boolean good = msi.updatePhoneNumber(6, 1232131);
 		launch(args);
 	}
 	
