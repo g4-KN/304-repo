@@ -1,8 +1,13 @@
 package com.cpsc304.coffeeshop.ui;
 
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
+import com.mysql.jdbc.PreparedStatement;
+
+import eu.schudt.javafx.controls.calendar.DatePicker;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -66,7 +71,6 @@ public class StartPageUI extends Application {
 
 	@Override
 	 public void start(Stage primaryStage) throws Exception {
-		// TODO Auto-generated method stub
 		stage = primaryStage;
 		primaryStage.setTitle("Table View Sample");
 		primaryStage.setWidth(440);
@@ -91,9 +95,7 @@ public class StartPageUI extends Application {
         
         Button customerButton = new Button("Customer");
         Button memberButton = new Button(" Member ");
-        Button employeeButton = new Button("Employee");
         Button managerButton = new Button(" Manager ");
-        Button adminButton = new Button("   Admin   ");
         final Label testLabel = new Label();
 		
 		customerButton.setOnAction(new EventHandler<ActionEvent> () {
@@ -108,26 +110,14 @@ public class StartPageUI extends Application {
 			}
 		});
 		
-		employeeButton.setOnAction(new EventHandler<ActionEvent> () {
-			public void handle(ActionEvent stage) {
-				testLabel.setText("fghrth");
-			}
-		});
-		
 		managerButton.setOnAction(new EventHandler<ActionEvent> () {
-			public void handle(ActionEvent stage) {
-				testLabel.setText("ppp");
-			}
-		});
-	     
-        adminButton.setOnAction(new EventHandler<ActionEvent> () {
-			public void handle(ActionEvent stage) {
-				testLabel.setText("something");
+			public void handle(ActionEvent event) {
+				stage.setScene(managerScene());
 			}
 		});
 		
 		
-		menuButtons.getChildren().addAll(title, customerButton, memberButton, employeeButton, managerButton, adminButton);
+		menuButtons.getChildren().addAll(title, customerButton, memberButton, managerButton);
 		return new Scene(menuButtons);
     }
 	
@@ -298,7 +288,7 @@ public class StartPageUI extends Application {
 				if (input.isEmpty()) {
 					errorPopup("Please input a name!");
 				} else {
-			        // TODO: Call Service				
+			        // TODO: Call Service
 				}
 				System.out.println(input);
 				nameField.clear();
@@ -376,6 +366,114 @@ public class StartPageUI extends Application {
         vbox.setSpacing(MAIN_VBOX_SPACING);
         vbox.setPadding(new Insets(10, 0, 0, 10));
         vbox.getChildren().addAll(toolBar, optionBar, profileForm);
+        return new Scene(vbox);
+    }
+    
+    protected Scene managerScene() {
+    	setUpViewStage();
+    	HBox toolBar = new HBox();
+    	toolBar.setSpacing(BAR_HBOX_SPACING);
+    	
+		final Label title = new Label("Manager View");
+        title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, TITLE_FONT_SIZE));
+        
+        Button backButton = new Button("Back");
+        backButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				 stage.setScene(logInScene());
+			}
+		});
+        
+        toolBar.getChildren().addAll(title, backButton);
+        
+        HBox managerBar = new HBox();
+        managerBar.setSpacing(BAR_HBOX_SPACING);
+        final Label managerId = new Label("Manager ID:");
+        managerId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField managerField = new TextField();
+        Button managerButton = new Button("Get Manager");
+        managerBar.getChildren().addAll(managerId, managerField, managerButton);
+        
+        HBox optionBar = new HBox();
+        optionBar.setSpacing(BAR_HBOX_SPACING);
+        final Label employeeSin = new Label("Employee SIN:");
+        employeeSin.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField empSinField = new TextField();
+        Button findTransactionsForEmployee = new Button("Get Transactions");
+        // TODO: Add action handler to put stuff into the table
+        final Separator optionBarSeparator1 = new Separator();
+        optionBarSeparator1.setOrientation(Orientation.VERTICAL);
+        Button storeTransactionButton = new Button("Get Store Transactions");
+        // TODO: Add action handler to put stuff into the table
+        final Separator optionBarSeparator2 = new Separator();
+        optionBarSeparator2.setOrientation(Orientation.VERTICAL);
+        final Label memberId = new Label("Member ID:");
+        memberId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField memberIdField = new TextField();
+        Button findTransactionsForMember = new Button("Get Transactions");
+        // TODO: Add action handler to put stuff into the table (put sum into popup?)
+        final Separator optionBarSeparator3 = new Separator();
+        optionBarSeparator3.setOrientation(Orientation.VERTICAL);
+        Button summaryButton = new Button("Get Summary");
+        // TODO: Make popup of summary
+        optionBar.getChildren().addAll(employeeSin, empSinField, findTransactionsForEmployee, optionBarSeparator1, storeTransactionButton, optionBarSeparator2, memberId, memberIdField, findTransactionsForMember, optionBarSeparator3, summaryButton);
+        
+        HBox dateBar = new HBox();
+        dateBar.setSpacing(BAR_HBOX_SPACING);
+        final Label startDateLabel = new Label("Start Date:");
+        startDateLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final DatePicker startDateField = new DatePicker(Locale.ENGLISH);
+        startDateField.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+        startDateField.getCalendarView().setShowWeeks(false);
+        // TODO: Implement datePicker
+        final Separator dateBarSeparator = new Separator();
+        dateBarSeparator.setOrientation(Orientation.VERTICAL);
+        final Label endDateLabel = new Label("End Date:");
+        endDateLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final DatePicker endDateField = new DatePicker(Locale.ENGLISH);
+        endDateField.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+        endDateField.getCalendarView().setShowWeeks(false);
+        // TODO: Implement datePicker
+        dateBar.getChildren().addAll(startDateLabel, startDateField, dateBarSeparator, endDateLabel, endDateField);       
+ 
+ 
+        TableColumn<Map, String> firstDataColumn = new TableColumn<>("CustomerName");
+        TableColumn<Map, String> secondDataColumn = new TableColumn<>("CustomerAddress");
+ 
+        firstDataColumn.setCellValueFactory(new MapValueFactory(Column1MapKey));
+        firstDataColumn.setMinWidth(200);
+        secondDataColumn.setCellValueFactory(new MapValueFactory(Column2MapKey));
+        secondDataColumn.setMinWidth(200);
+ 
+        TableView tableView = new TableView<>(generateDataInMap());
+ 
+        tableView.setEditable(true);
+        tableView.getSelectionModel().setCellSelectionEnabled(true);
+        tableView.getColumns().setAll(firstDataColumn, secondDataColumn);
+        Callback<TableColumn<Map, String>, TableCell<Map, String>>
+        cellFactoryForMap = new Callback<TableColumn<Map, String>,
+            TableCell<Map, String>>() {
+                @Override
+                public TableCell call(TableColumn p) {
+                    return new TextFieldTableCell(new StringConverter() {
+                        @Override
+                        public String toString(Object t) {
+                            return t.toString();
+                        }
+                        @Override
+                        public Object fromString(String string) {
+                            return string;
+                        }                                    
+                    });
+                }
+    };
+        firstDataColumn.setCellFactory(cellFactoryForMap);
+        secondDataColumn.setCellFactory(cellFactoryForMap);
+    	
+        final VBox vbox = new VBox();
+        vbox.setSpacing(MAIN_VBOX_SPACING);
+        vbox.setPadding(new Insets(10, 0, 0, 10));
+        vbox.getChildren().addAll(toolBar, managerBar, optionBar, dateBar, tableView);
         return new Scene(vbox);
     }
 	
