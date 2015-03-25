@@ -41,7 +41,8 @@ public class startpageui extends Application {
 	
 	public static void main(String[] args) throws Exception{
         MemberServiceImpl msi = new MemberServiceImpl();
-        boolean good = msi.updatePhoneNumber(6, 1232131);
+        //boolean good = msi.updatePhoneNumber(6, 1232131);
+        boolean good = msi.updateAddress(1, 1, "lo", "la", "la", "lolol");
 		launch(args);
 	}
 	
