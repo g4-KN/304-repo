@@ -1,5 +1,6 @@
 package com.cpsc304.coffeeshop.ui;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -312,14 +313,24 @@ public class GUI extends Application {
         Button changePhoneButton = new Button("Change Phone");
         changePhoneButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
-				String input = phoneField.getText();
-				if (input.isEmpty()) {
+				String phoneNoInput = phoneField.getText();
+				String memberInput = memberField.getText();
+				if (phoneNoInput.isEmpty()) {
 					errorPopup("Please input a phone number!");
+				} else if (memberInput.isEmpty()) {
+					errorPopup("Please input a member ID!");
 				} else {
-			        // TODO: Call Service				
+					try {
+						int memberId = Integer.parseInt(memberInput);
+						int phoneNo = Integer.parseInt(phoneNoInput);
+						memberService.updatePhoneNumber(memberId, phoneNo);
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid member ID or phone number!");
+						memberField.clear();
+					} catch (SQLException e) {
+						errorPopup("Update Failed");
+					}
 				}
-				System.out.println(input);
-				phoneField.clear();
 			}
 		});
         
@@ -334,17 +345,28 @@ public class GUI extends Application {
 				if (houseInput.isEmpty() || streetInput.isEmpty() || postalCodeInput.isEmpty() || cityInput.isEmpty() || provInput.isEmpty()) {
 					errorPopup("Please input a FULL address!");
 				} else {
-			        // TODO: Call Service				
+					String input = memberField.getText();
+					if (input.isEmpty()) {
+						errorPopup("Please input a valid member ID!");
+						memberField.clear();
+					} else {
+						try {
+							int memberId = Integer.parseInt(input);
+							int houseNumber = Integer.parseInt(houseInput);
+							memberService.updateAddress(memberId, houseNumber, streetInput, postalCodeInput, cityInput, provInput);
+						} catch (NumberFormatException nfe) {
+							errorPopup("Please input a valid member ID or house number!");
+							memberField.clear();
+						} catch (SQLException e) {
+							errorPopup("Update Failed");
+						}
+					}			
 				}
-				houseField.clear();
-				streetField.clear();
-				postalCodeField.clear();
-				cityField.clear();
-				provField.clear();
 			}
 		});
         Button deleteMember = new Button("Delete Membership");
         profileForm.getChildren().addAll(formGrid, changeNameButton, changePhoneButton, changeAddress, deleteMember);
+        
         profileButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
 				String input = memberField.getText();

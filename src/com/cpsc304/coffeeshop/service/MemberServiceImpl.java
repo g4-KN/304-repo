@@ -48,12 +48,12 @@ public class MemberServiceImpl {
         return resultData;
     }
 
-    public  boolean updatePhoneNumber(int memberId, int phoneNumber) throws SQLException {
+    public  boolean updatePhoneNumber(int memberId, long phoneNumber) throws SQLException {
         String query = "update Member set Phone = ? where MemberId = ?";
         PreparedStatement stmt = null;
         try {
             stmt = connection.prepareStatement(query);
-            stmt.setInt(1, phoneNumber);
+            stmt.setLong(1, phoneNumber);
             stmt.setInt(2, memberId);
             stmt.executeUpdate();
             return true;
