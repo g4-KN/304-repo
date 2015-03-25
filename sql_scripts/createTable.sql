@@ -29,7 +29,7 @@ CREATE TABLE Food
 CREATE TABLE Drink
 (DrinkName VARCHAR(50), Size VARCHAR(50), price DECIMAL(6,2), pointCost INTEGER, pointReward INTEGER,
 PRIMARY KEY (DrinkName, Size));
-￼
+
 CREATE TABLE FoodMenu
 (StoreId INTEGER, FoodName VARCHAR(50),
 PRIMARY KEY (StoreId, FoodName),
@@ -49,7 +49,7 @@ FOREIGN KEY (SinNo) REFERENCES Employee(SinNo));
 
 CREATE TABLE ContainsFood
 (TransactionNo INTEGER, FoodName VARCHAR(50), quantity INTEGER, PRIMARY KEY (TransactionNo, FoodName),
-FOREIGN KEY (TransactionNo) REFERENCES Transaction(TransactionNo), FOREIGN KEY (FoodName) REFERENCES Food(FoodName));
+FOREIGN KEY (TransactionNo) REFERENCES Transaction(TransactionNo) ON DELETE CASCADE, FOREIGN KEY (FoodName) REFERENCES Food(FoodName));
 
 CREATE TABLE ContainsDrink
 (TransactionNo INTEGER, DrinkName VARCHAR(50), Size VARCHAR(50), quantity INTEGER, PRIMARY KEY (TransactionNo, DrinkName, Size),
