@@ -1,11 +1,14 @@
 package com.cpsc304.coffeeshop.ui;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import com.mysql.jdbc.PreparedStatement;
+import com.cpsc304.coffeeshop.objects.Store;
+import com.cpsc304.coffeeshop.objects.Transaction;
 
 import eu.schudt.javafx.controls.calendar.DatePicker;
 import javafx.application.Application;
@@ -25,6 +28,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.MapValueFactory;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -39,11 +43,14 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
  
-public class StartPageUI extends Application {
+public class GUI extends Application {
 	
 	public static final int SPLASH_FONT_SIZE = 28;
 	public static final int TITLE_FONT_SIZE = 20;
 	public static final int LABEL_FONT_SIZE = 16;
+	
+	public static final int COLUMN_MIN_WIDTH = 100;
+	public static final int COLUMN_MAX_WIDTH = 200;
 	
 	public static final int MAIN_VBOX_SPACING = 20;
 	public static final int BAR_HBOX_SPACING = 10;
@@ -96,7 +103,6 @@ public class StartPageUI extends Application {
         Button customerButton = new Button("Customer");
         Button memberButton = new Button(" Member ");
         Button managerButton = new Button(" Manager ");
-        final Label testLabel = new Label();
 		
 		customerButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
@@ -125,7 +131,35 @@ public class StartPageUI extends Application {
     protected Scene customerScene() {
     	setUpViewStage();
     	HBox toolBar = new HBox();
-    	toolBar.setSpacing(BAR_HBOX_SPACING);
+    	toolBar.setSpacing(BAR_HBOX_SPACING);    	
+        
+        final TableView<Store> storeTable = new TableView<Store>();
+        storeTable.setEditable(false);        
+        TableColumn<Store, String> storeIdCol = new TableColumn<Store, String>("Store ID");
+        storeIdCol.setMinWidth(COLUMN_MIN_WIDTH);
+        storeIdCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        storeIdCol.setCellValueFactory(new PropertyValueFactory<Store, String>("storeId"));
+        TableColumn<Store, String> houseNoCol = new TableColumn<Store, String>("Address Number");
+        houseNoCol.setMinWidth(COLUMN_MIN_WIDTH);
+        houseNoCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        houseNoCol.setCellValueFactory(new PropertyValueFactory<Store, String>("houseNo"));
+        TableColumn<Store, String> streetCol = new TableColumn<Store, String>("Street");
+        streetCol.setMinWidth(COLUMN_MIN_WIDTH);
+        streetCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        streetCol.setCellValueFactory(new PropertyValueFactory<Store, String>("street"));
+        TableColumn<Store, String> postalCodeCol = new TableColumn<Store, String>("Postal Code");
+        postalCodeCol.setMinWidth(COLUMN_MIN_WIDTH);
+        postalCodeCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        postalCodeCol.setCellValueFactory(new PropertyValueFactory<Store, String>("postalCode"));
+        TableColumn<Store, String> cityCol = new TableColumn<Store, String>("City");
+        cityCol.setMinWidth(COLUMN_MIN_WIDTH);
+        cityCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        cityCol.setCellValueFactory(new PropertyValueFactory<Store, String>("city"));
+        TableColumn<Store, String> provCol = new TableColumn<Store, String>("Province");
+        provCol.setMinWidth(COLUMN_MIN_WIDTH);
+        provCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        provCol.setCellValueFactory(new PropertyValueFactory<Store, String>("province"));
+        storeTable.getColumns().addAll(storeIdCol, houseNoCol, streetCol, postalCodeCol, cityCol, provCol);    	
     	
 		final Label title = new Label("Customer View");
         title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, TITLE_FONT_SIZE));
@@ -143,9 +177,17 @@ public class StartPageUI extends Application {
         optionBar.setSpacing(BAR_HBOX_SPACING);
         
         Button findStores = new Button("Find Stores");
-        // TODO: Add action handler to put stuff into the table
-        final Separator optionBarSeparator = new Separator();
-        optionBarSeparator.setOrientation(Orientation.VERTICAL);
+        findStores.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+		        // TODO: PUT DATABASE RETURN HERE
+				List<Store> stores = new ArrayList<Store>();
+				stores.add(new Store(new Double(Math.random() * 10).toString(), "1234", "Test Street", "V1AB2C", "Vancouver", "BC"));
+				ObservableList<Store> data = FXCollections.observableList(stores);
+				storeTable.setItems(data);
+			}
+		});
+        final Separator optionBarSeparator1 = new Separator();
+        optionBarSeparator1.setOrientation(Orientation.VERTICAL);
         final Label storeId = new Label("Store ID:");
         storeId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final TextField productStoreId = new TextField();
@@ -158,48 +200,17 @@ public class StartPageUI extends Application {
 				productStoreId.clear();
 			}
 		});
+        final Separator optionBarSeparator2 = new Separator();
+        optionBarSeparator2.setOrientation(Orientation.VERTICAL);
+        Button findAllProducts = new Button("Find All Products");
+        // TODO: write a button handler to display all the products
         
-        optionBar.getChildren().addAll(findStores, optionBarSeparator, storeId, productStoreId, findProducts);
-        
- 
- 
-        TableColumn<Map, String> firstDataColumn = new TableColumn<>("CustomerName");
-        TableColumn<Map, String> secondDataColumn = new TableColumn<>("CustomerAddress");
- 
-        firstDataColumn.setCellValueFactory(new MapValueFactory(Column1MapKey));
-        firstDataColumn.setMinWidth(200);
-        secondDataColumn.setCellValueFactory(new MapValueFactory(Column2MapKey));
-        secondDataColumn.setMinWidth(200);
- 
-        TableView tableView = new TableView<>(generateDataInMap());
- 
-        tableView.setEditable(true);
-        tableView.getSelectionModel().setCellSelectionEnabled(true);
-        tableView.getColumns().setAll(firstDataColumn, secondDataColumn);
-        Callback<TableColumn<Map, String>, TableCell<Map, String>>
-        cellFactoryForMap = new Callback<TableColumn<Map, String>,
-            TableCell<Map, String>>() {
-                @Override
-                public TableCell call(TableColumn p) {
-                    return new TextFieldTableCell(new StringConverter() {
-                        @Override
-                        public String toString(Object t) {
-                            return t.toString();
-                        }
-                        @Override
-                        public Object fromString(String string) {
-                            return string;
-                        }                                    
-                    });
-                }
-    };
-        firstDataColumn.setCellFactory(cellFactoryForMap);
-        secondDataColumn.setCellFactory(cellFactoryForMap);
+        optionBar.getChildren().addAll(findStores, optionBarSeparator1, storeId, productStoreId, findProducts, optionBarSeparator2, findAllProducts);
     	
         final VBox vbox = new VBox();
         vbox.setSpacing(MAIN_VBOX_SPACING);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(toolBar, optionBar, tableView);
+        vbox.getChildren().addAll(toolBar, optionBar, storeTable);
         return new Scene(vbox);
     }
 	
@@ -329,7 +340,8 @@ public class StartPageUI extends Application {
 				provField.clear();
 			}
 		});
-        profileForm.getChildren().addAll(formGrid, changeNameButton, changePhoneButton, changeAddress);
+        Button deleteMember = new Button("Delete Membership");
+        profileForm.getChildren().addAll(formGrid, changeNameButton, changePhoneButton, changeAddress, deleteMember);
         
         profileButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
@@ -373,6 +385,42 @@ public class StartPageUI extends Application {
     	setUpViewStage();
     	HBox toolBar = new HBox();
     	toolBar.setSpacing(BAR_HBOX_SPACING);
+    	
+    	final TableView<Transaction> transactionTable = new TableView<Transaction>();
+    	transactionTable.setEditable(false);        
+        TableColumn<Transaction, String> transNoCol = new TableColumn<Transaction, String>("Transaction #");
+        transNoCol.setMinWidth(COLUMN_MIN_WIDTH);
+        transNoCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        transNoCol.setCellValueFactory(new PropertyValueFactory<Transaction, String>("transactionNo"));
+        TableColumn<Transaction, String> ptsGenCol = new TableColumn<Transaction, String>("Points Generated");
+        ptsGenCol.setMinWidth(COLUMN_MIN_WIDTH);
+        ptsGenCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        ptsGenCol.setCellValueFactory(new PropertyValueFactory<Transaction, String>("pointsGenerated"));
+        TableColumn<Transaction, String> dateCol = new TableColumn<Transaction, String>("Date");
+        dateCol.setMinWidth(COLUMN_MIN_WIDTH);
+        dateCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        dateCol.setCellValueFactory(new PropertyValueFactory<Transaction, String>("date"));
+        TableColumn<Transaction, String> storeIdCol = new TableColumn<Transaction, String>("Store ID");
+        storeIdCol.setMinWidth(COLUMN_MIN_WIDTH);
+        storeIdCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        storeIdCol.setCellValueFactory(new PropertyValueFactory<Transaction, String>("storeId"));
+        TableColumn<Transaction, String> memberIdCol = new TableColumn<Transaction, String>("Member ID");
+        memberIdCol.setMinWidth(COLUMN_MIN_WIDTH);
+        memberIdCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        memberIdCol.setCellValueFactory(new PropertyValueFactory<Transaction, String>("memberId"));
+        TableColumn<Transaction, String> sinNoCol = new TableColumn<Transaction, String>("Employee SIN");
+        sinNoCol.setMinWidth(COLUMN_MIN_WIDTH);
+        sinNoCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        sinNoCol.setCellValueFactory(new PropertyValueFactory<Transaction, String>("sinNo"));
+        TableColumn<Transaction, String> pointCostCol = new TableColumn<Transaction, String>("Point Cost");
+        pointCostCol.setMinWidth(COLUMN_MIN_WIDTH);
+        pointCostCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        pointCostCol.setCellValueFactory(new PropertyValueFactory<Transaction, String>("pointCost"));
+        TableColumn<Transaction, String> moneyCostCol = new TableColumn<Transaction, String>("Money Cost");
+        moneyCostCol.setMinWidth(COLUMN_MIN_WIDTH);
+        moneyCostCol.setMaxWidth(COLUMN_MAX_WIDTH);
+        moneyCostCol.setCellValueFactory(new PropertyValueFactory<Transaction, String>("moneyCost"));
+        transactionTable.getColumns().addAll(transNoCol, ptsGenCol, dateCol, storeIdCol, memberIdCol, sinNoCol, pointCostCol, moneyCostCol);
     	
 		final Label title = new Label("Manager View");
         title.setFont(Font.font("Arial", FontWeight.BOLD, FontPosture.ITALIC, TITLE_FONT_SIZE));
@@ -435,67 +483,11 @@ public class StartPageUI extends Application {
         endDateField.getCalendarView().setShowWeeks(false);
         // TODO: Implement datePicker
         dateBar.getChildren().addAll(startDateLabel, startDateField, dateBarSeparator, endDateLabel, endDateField);       
- 
- 
-        TableColumn<Map, String> firstDataColumn = new TableColumn<>("CustomerName");
-        TableColumn<Map, String> secondDataColumn = new TableColumn<>("CustomerAddress");
- 
-        firstDataColumn.setCellValueFactory(new MapValueFactory(Column1MapKey));
-        firstDataColumn.setMinWidth(200);
-        secondDataColumn.setCellValueFactory(new MapValueFactory(Column2MapKey));
-        secondDataColumn.setMinWidth(200);
- 
-        TableView tableView = new TableView<>(generateDataInMap());
- 
-        tableView.setEditable(true);
-        tableView.getSelectionModel().setCellSelectionEnabled(true);
-        tableView.getColumns().setAll(firstDataColumn, secondDataColumn);
-        Callback<TableColumn<Map, String>, TableCell<Map, String>>
-        cellFactoryForMap = new Callback<TableColumn<Map, String>,
-            TableCell<Map, String>>() {
-                @Override
-                public TableCell call(TableColumn p) {
-                    return new TextFieldTableCell(new StringConverter() {
-                        @Override
-                        public String toString(Object t) {
-                            return t.toString();
-                        }
-                        @Override
-                        public Object fromString(String string) {
-                            return string;
-                        }                                    
-                    });
-                }
-    };
-        firstDataColumn.setCellFactory(cellFactoryForMap);
-        secondDataColumn.setCellFactory(cellFactoryForMap);
     	
         final VBox vbox = new VBox();
         vbox.setSpacing(MAIN_VBOX_SPACING);
         vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(toolBar, managerBar, optionBar, dateBar, tableView);
+        vbox.getChildren().addAll(toolBar, managerBar, optionBar, dateBar, transactionTable);
         return new Scene(vbox);
     }
-	
-    private ObservableList<Map> generateDataInMap() {
-        int max = 10;
-        ObservableList<Map> allData = FXCollections.observableArrayList();
-        
-        String[] mockA = {"Jason", "Mayson", "Daniel", "David", "Mark" , "god"};
-        String[] mockB = {"2122 something street", "9999 come@street","1234 easy street", "64356 idk street", "420 yoloswag street", "1337 legend street" };
-        
-        for (int i = 0; i < 6; i++) {
-            Map<String, String> dataRow = new HashMap<>();
- 
-            String value1 = mockA[i];
-            String value2 = mockB[i];
- 
-            dataRow.put(Column1MapKey, value1);
-            dataRow.put(Column2MapKey, value2);
- 
-            allData.add(dataRow);
-        }
-        return allData;
-    }
-
 }
