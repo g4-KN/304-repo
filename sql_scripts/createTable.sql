@@ -53,6 +53,6 @@ FOREIGN KEY (TransactionNo) REFERENCES Transaction(TransactionNo) ON DELETE CASC
 
 CREATE TABLE ContainsDrink
 (TransactionNo INTEGER, DrinkName VARCHAR(50), Size VARCHAR(50), quantity INTEGER, PRIMARY KEY (TransactionNo, DrinkName, Size),
-FOREIGN KEY (TransactionNo) REFERENCES Transaction(TransactionNo) ON DELETE CASCADE,
+FOREIGN KEY (TransactionNo) REFERENCES Transaction(TransactionNo),
 FOREIGN KEY (DrinkName, Size) REFERENCES Drink(DrinkName, Size));
 
