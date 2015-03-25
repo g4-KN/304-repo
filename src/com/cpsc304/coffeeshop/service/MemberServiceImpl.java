@@ -20,11 +20,12 @@ public class MemberServiceImpl {
 		this.connection = lc.getConnection();
 	}
 
-    public List<Map<String, String>> getMemberById(int memberId) {
+    public List<Map<String, String>> getMemberById(int memberId) throws SQLException {
         String query = "SELECT * FROM member m, postalcodereference p WHERE m.postalcode = p.postalcode AND m.memberId = ?";
         List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
+        PreparedStatement stmt = null;
         try {
-            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt = connection.prepareStatement(query);
             stmt.setInt(1, memberId);
             ResultSet rs = stmt.executeQuery();
 
@@ -44,6 +45,10 @@ public class MemberServiceImpl {
 
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
         }
         return resultData;
     }
