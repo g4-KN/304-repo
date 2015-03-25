@@ -299,14 +299,23 @@ public class GUI extends Application {
         Button changeNameButton = new Button("Change Name");
         changeNameButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
-				String input = nameField.getText();
-				if (input.isEmpty()) {
-					errorPopup("Please input a name!");
+				String nameInput = nameField.getText();
+				String memberInput = memberField.getText();
+				if (nameInput.isEmpty()) {
+					errorPopup("Please input a phone number!");
+				} else if (memberInput.isEmpty()) {
+					errorPopup("Please input a member ID!");
 				} else {
-			        // TODO: Call Service
+					try {
+						int memberId = Integer.parseInt(memberInput);
+						memberService.updateName(memberId, nameInput);
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid member ID or phone number!");
+						memberField.clear();
+					} catch (SQLException e) {
+						errorPopup("Update Failed");
+					}
 				}
-				System.out.println(input);
-				nameField.clear();
 			}
 		});
 
@@ -392,6 +401,8 @@ public class GUI extends Application {
 					} catch (NumberFormatException nfe) {
 						errorPopup("Please input a valid member ID!");
 						memberField.clear();
+					} catch (SQLException e) {
+						errorPopup("Member does not exist!");
 					}
 				}
 			}

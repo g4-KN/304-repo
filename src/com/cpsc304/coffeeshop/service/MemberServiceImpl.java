@@ -52,6 +52,27 @@ public class MemberServiceImpl {
         }
         return resultData;
     }
+    
+    public  boolean updateName(int memberId, String name) throws SQLException {
+        String query = "UPDATE member SET name = ? WHERE memberId = ?";
+        PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(query);
+            stmt.setString(1, name);
+            stmt.setInt(2, memberId);
+            stmt.executeUpdate();
+            return true;
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+        }
+        return false;
+    }
 
     public  boolean updatePhoneNumber(int memberId, long phoneNumber) throws SQLException {
         String query = "update Member set Phone = ? where MemberId = ?";
