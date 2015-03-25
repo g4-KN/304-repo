@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.cpsc304.coffeeshop.objects.Store;
 import com.cpsc304.coffeeshop.objects.Transaction;
+import com.cpsc304.coffeeshop.service.CustomerServiceImpl;
 import com.cpsc304.coffeeshop.service.MemberServiceImpl;
 
 import eu.schudt.javafx.controls.calendar.DatePicker;
@@ -23,6 +24,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TableCell;
@@ -62,6 +64,7 @@ public class GUI extends Application {
 	private Stage stage;
 	
 	public MemberServiceImpl memberService = new MemberServiceImpl();
+	public CustomerServiceImpl customerService = new CustomerServiceImpl();
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -183,11 +186,13 @@ public class GUI extends Application {
         Button findStores = new Button("Find Stores");
         findStores.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
-		        // TODO: PUT DATABASE RETURN HERE
-				List<Store> stores = new ArrayList<Store>();
-				stores.add(new Store(new Double(Math.random() * 10).toString(), "1234", "Test Street", "V1AB2C", "Vancouver", "BC"));
-				ObservableList<Store> data = FXCollections.observableList(stores);
-				storeTable.setItems(data);
+		        try {
+					List<Store> stores = customerService.showStoreInfo();
+					ObservableList<Store> data = FXCollections.observableList(stores);
+					storeTable.setItems(data);		        	
+		        } catch (SQLException sqle) {
+		        	
+		        }
 			}
 		});
         final Separator optionBarSeparator1 = new Separator();
@@ -198,16 +203,80 @@ public class GUI extends Application {
         Button findProducts = new Button("Find Products");
         findProducts.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
-		        // TODO: Add action handler to put stuff into the table
-				String input = productStoreId.getText();
-				System.out.println(input);
-				productStoreId.clear();
+				String storeInput = productStoreId.getText();
+				if (storeInput.isEmpty()) {
+					errorPopup("Please input a store ID!");
+				} else {
+					try {
+						int store = Integer.parseInt(storeInput);
+						List<Map<String, String>> drinkMaps = customerService.showDrinkMenuByStoreId(store);
+						List<Map<String, String>> foodMaps = customerService.showFoodMenuByStoreId(store);
+						if (drinkMaps.isEmpty() || foodMaps.isEmpty()) {
+							errorPopup("There is nothing offered at that store!");
+						} else {
+							StringBuilder sb = new StringBuilder();
+							for(Map<String, String> drink : drinkMaps) {
+								sb.append("Drink Item: ");
+								sb.append(drink.get("drinkName") + ", ");
+								sb.append(drink.get("size") + ", ");
+								sb.append("$" + drink.get("price") + ", ");
+								sb.append("Points: " + drink.get("pointCost"));
+								sb.append("\n");								
+							}
+							sb.append("-----------------------------------------\n");
+							for(Map<String, String> food : foodMaps) {
+								sb.append("Food Item: ");
+								sb.append(food.get("foodName") + ", ");
+								sb.append("$" + food.get("price") + ", ");
+								sb.append("Points: " + food.get("pointCost"));
+								sb.append("\n");								
+							}
+							errorPopup(sb.toString());
+						}						
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid store ID!");
+						productStoreId.clear();
+					} catch (SQLException e) {
+						errorPopup("Update Failed");
+					}
+				}
 			}
 		});
         final Separator optionBarSeparator2 = new Separator();
         optionBarSeparator2.setOrientation(Orientation.VERTICAL);
         Button findAllProducts = new Button("Find All Products");
-        // TODO: write a button handler to display all the products
+        findAllProducts.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				try {
+					List<Map<String, String>> drinkMaps = customerService.showDrinkInfo();
+					List<Map<String, String>> foodMaps = customerService.showFoodInfo();
+					if (drinkMaps.isEmpty() || foodMaps.isEmpty()) {
+						errorPopup("There is nothing offered at that store!");
+					} else {
+						StringBuilder sb = new StringBuilder();
+						for(Map<String, String> drink : drinkMaps) {
+							sb.append("Drink Item: ");
+							sb.append(drink.get("drinkName") + ", ");
+							sb.append(drink.get("size") + ", ");
+							sb.append("$" + drink.get("price") + ", ");
+							sb.append("Points: " + drink.get("pointCost"));
+							sb.append("\n");								
+						}
+						sb.append("-----------------------------------------\n");
+						for(Map<String, String> food : foodMaps) {
+							sb.append("Food Item: ");
+							sb.append(food.get("foodName") + ", ");
+							sb.append("$" + food.get("price") + ", ");
+							sb.append("Points: " + food.get("pointCost"));
+							sb.append("\n");								
+						}
+						errorPopup(sb.toString());
+					}						
+				} catch (SQLException e) {
+					errorPopup("Update Failed");
+				}
+			}
+		});
         
         optionBar.getChildren().addAll(findStores, optionBarSeparator1, storeId, productStoreId, findProducts, optionBarSeparator2, findAllProducts);
     	
@@ -242,6 +311,14 @@ public class GUI extends Application {
         memberId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final TextField memberField = new TextField();
         Button profileButton = new Button("Get Profile");
+        final CheckBox nameCheck = new CheckBox("Get Name");
+        final CheckBox phoneCheck = new CheckBox("Get Phone");
+        final CheckBox addressCheck = new CheckBox("Get Address");
+        final CheckBox pointsCheck = new CheckBox("Get Points");
+        nameCheck.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        phoneCheck.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        addressCheck.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        pointsCheck.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final VBox profileForm = new VBox();
         profileForm.setSpacing(10);
         
@@ -373,8 +450,7 @@ public class GUI extends Application {
 				}
 			}
 		});
-        Button deleteMember = new Button("Delete Membership");
-        profileForm.getChildren().addAll(formGrid, changeNameButton, changePhoneButton, changeAddress, deleteMember);
+        profileForm.getChildren().addAll(formGrid, changeNameButton, changePhoneButton, changeAddress);
         
         profileButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
@@ -382,21 +458,47 @@ public class GUI extends Application {
 				if (input.isEmpty()) {
 					errorPopup("Please input a valid member ID!");
 					memberField.clear();
+				} else if (!nameCheck.isSelected() && !phoneCheck.isSelected() && !addressCheck.isSelected() && !pointsCheck.isSelected()) {
+					errorPopup("Please select an attribute!");
 				} else {
 					try {
 						int memberId = Integer.parseInt(input);
-						List<Map<String, String>> member = memberService.getMemberById(memberId);
+						List<Map<String, String>> member = memberService.getMemberById(memberId, nameCheck.isSelected(), phoneCheck.isSelected(), addressCheck.isSelected(), pointsCheck.isSelected());
 						if (member.isEmpty()) {
 							errorPopup("This member does not exist!");
 						} else {
-							nameField.setText(member.get(0).get("Name"));
-							phoneField.setText(member.get(0).get("Phone"));
-							houseField.setText(member.get(0).get("HouseNo"));
-							streetField.setText(member.get(0).get("Street"));
-							postalCodeField.setText(member.get(0).get("PostalCode"));
-							cityField.setText(member.get(0).get("City"));
-							provField.setText(member.get(0).get("Province"));
-							points.setText(member.get(0).get("PointBalance"));
+							if (!nameCheck.isSelected()) {
+								nameField.setText("");
+							}
+							if (!phoneCheck.isSelected()) {
+								phoneField.setText("");
+							}
+							if (!addressCheck.isSelected()) {
+								houseField.setText("");
+								streetField.setText("");
+								postalCodeField.setText("");
+								cityField.setText("");
+								provField.setText("");								
+							}
+							if (!pointsCheck.isSelected()) {
+								points.setText("");
+							}
+							if (nameCheck.isSelected()) {
+								nameField.setText(member.get(0).get("Name"));
+							}
+							if (phoneCheck.isSelected()) {
+								phoneField.setText(member.get(0).get("Phone"));
+							}
+							if (addressCheck.isSelected()) {
+								houseField.setText(member.get(0).get("HouseNo"));
+								streetField.setText(member.get(0).get("Street"));
+								postalCodeField.setText(member.get(0).get("PostalCode"));
+								cityField.setText(member.get(0).get("City"));
+								provField.setText(member.get(0).get("Province"));								
+							}
+							if (pointsCheck.isSelected()) {
+								points.setText(member.get(0).get("PointBalance"));
+							}
 						}
 					} catch (NumberFormatException nfe) {
 						errorPopup("Please input a valid member ID!");
@@ -408,7 +510,7 @@ public class GUI extends Application {
 			}
 		});
         
-        optionBar.getChildren().addAll(memberId, memberField, profileButton);
+        optionBar.getChildren().addAll(memberId, memberField, profileButton, nameCheck, phoneCheck, addressCheck, pointsCheck);
         
         final VBox vbox = new VBox();
         vbox.setSpacing(MAIN_VBOX_SPACING);

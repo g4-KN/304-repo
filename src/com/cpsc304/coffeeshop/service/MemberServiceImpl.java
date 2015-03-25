@@ -20,8 +20,23 @@ public class MemberServiceImpl {
 		this.connection = lc.getConnection();
 	}
 
-    public List<Map<String, String>> getMemberById(int memberId) throws SQLException {
-        String query = "SELECT * FROM member m, postalcodereference p WHERE m.postalcode = p.postalcode AND m.memberId = ?";
+    public List<Map<String, String>> getMemberById(int memberId, boolean name, boolean phone, boolean address, boolean points) throws SQLException {
+        StringBuilder sb = new StringBuilder();
+        if (name) {
+        	sb.append("m.name,");
+        }
+        if (phone) {
+        	sb.append("m.phone,");
+        }
+        if (address) {
+        	sb.append("m.houseno, m.street, m.postalcode, p.city, p.province,");
+        }
+        if (points) {
+        	sb.append("m.pointbalance,");
+        }
+    	sb.setLength(sb.length() - 1);
+    	String selection = sb.toString();
+    	String query = "SELECT " + selection + " FROM member m, postalcodereference p WHERE m.postalcode = p.postalcode AND m.memberId = ?";
         List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
         PreparedStatement stmt = null;
         try {
@@ -31,15 +46,22 @@ public class MemberServiceImpl {
 
             while (rs.next()){
                 Map<String, String> nm = new HashMap<>();
-                nm.put("MemberId", "" + rs.getInt("MemberId"));
-                nm.put("PointBalance", "" + rs.getInt("PointBalance"));
-                nm.put("Name", rs.getString("Name"));
-                nm.put("Phone", "" + rs.getString("Phone"));
-                nm.put("HouseNo", "" + rs.getInt("HouseNo"));
-                nm.put("Street", rs.getString("Street"));
-                nm.put("PostalCode", rs.getString("PostalCode"));
-                nm.put("City", rs.getString("City"));
-                nm.put("Province", rs.getString("Province"));
+                if (name) {
+                	nm.put("Name", rs.getString("Name"));
+                }
+                if (phone) {
+                	nm.put("Phone", "" + rs.getString("Phone"));
+                }
+                if (address) {
+                	nm.put("HouseNo", "" + rs.getInt("HouseNo"));
+                    nm.put("Street", rs.getString("Street"));
+                    nm.put("PostalCode", rs.getString("PostalCode"));
+                    nm.put("City", rs.getString("City"));
+                    nm.put("Province", rs.getString("Province"));
+                }
+                if (points) {
+                	nm.put("PointBalance", "" + rs.getInt("PointBalance"));
+                }
                 resultData.add(nm);
             }
 
