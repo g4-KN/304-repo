@@ -52,4 +52,36 @@ public class ManagerServiceImpl {
         return resultData;
     }
 
+    public ObservableList<Map> getTransactionByStoreWithDate(int StoreId, Date start_date, Date end_date){
+        String query = "select * from Transaction where StoreId = ? and Date < ? and Date > ? ";
+        ObservableList<Map> resultData = FXCollections.observableArrayList();
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setInt(1, StoreId);
+            stmt.setDate(2, end_date);
+            stmt.setDate(3, start_date);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()){
+                //TransactionNo | StoreId | pointsGenerated | Date | MemberId | SinNo | moneyCost | pointCost
+                //System.out.println(rs.getString("Name"));
+                Map<String, String> nm = new HashMap<>();
+                nm.put("TransactionNo", "" + rs.getInt("TransactionNo"));
+                nm.put("StoreId", "" + rs.getInt("StoreId"));
+                nm.put("pointsGenerated", "" + rs.getInt("pointsGenerated"));
+                nm.put("Date", rs.getDate("Date").toString());
+                nm.put("MemberId", "" + rs.getInt("MemberId"));
+                nm.put("SinNo", "" + rs.getInt("SinNo"));
+                nm.put("moneyCost", "" + rs.getBigDecimal("moneyCost"));
+                nm.put("pointCost", "" + rs.getInt("pointCost"));
+                resultData.add(nm);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return resultData;
+    }
+
 }
