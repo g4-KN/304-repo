@@ -4,7 +4,9 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.cpsc304.coffeeshop.database.LocalConnection;
@@ -20,9 +22,9 @@ public class ManagerServiceImpl {
 		this.connection = lc.getConnection();
 	}
 
-    public ObservableList<Map> getTransactionBySinWithDate(int SinNo, Date start_date, Date end_date){
+    public List<Map<String, String>> getTransactionBySinWithDate(int SinNo, Date start_date, Date end_date){
         String query = "select * from Transaction where SinNo = ? and Date < ? and Date > ? ";
-        ObservableList<Map> resultData = FXCollections.observableArrayList();
+        List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setInt(1, SinNo);
@@ -52,9 +54,9 @@ public class ManagerServiceImpl {
         return resultData;
     }
 
-    public ObservableList<Map> getTransactionByStoreWithDate(int StoreId, Date start_date, Date end_date){
+    public List<Map<String, String>> getTransactionByStoreWithDate(int StoreId, Date start_date, Date end_date){
         String query = "select * from Transaction where StoreId = ? and Date < ? and Date > ? ";
-        ObservableList<Map> resultData = FXCollections.observableArrayList();
+        List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
         try {
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setInt(1, StoreId);
