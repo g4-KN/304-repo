@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.cpsc304.coffeeshop.objects.Store;
 import com.cpsc304.coffeeshop.objects.Transaction;
+import com.cpsc304.coffeeshop.service.MemberServiceImpl;
 
 import eu.schudt.javafx.controls.calendar.DatePicker;
 import javafx.application.Application;
@@ -58,6 +59,8 @@ public class GUI extends Application {
 	public static final String Column1MapKey = "A";
 	public static final String Column2MapKey = "B";
 	private Stage stage;
+	
+	public MemberServiceImpl memberService = new MemberServiceImpl();
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -342,32 +345,32 @@ public class GUI extends Application {
 		});
         Button deleteMember = new Button("Delete Membership");
         profileForm.getChildren().addAll(formGrid, changeNameButton, changePhoneButton, changeAddress, deleteMember);
-        
         profileButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
 				String input = memberField.getText();
 				if (input.isEmpty()) {
-					errorPopup("Please enter a member ID!");
+					errorPopup("Please input a valid member ID!");
+					memberField.clear();
 				} else {
-					nameField.clear();
-					phoneField.clear();
-					houseField.clear();
-					streetField.clear();
-					postalCodeField.clear();
-					cityField.clear();
-					provField.clear();
-					points.setText("0");
-					// TODO: GOTO DATABASE AND SET THINGS IN UI
-					// TODO: DON'T FORGET TO CHECK IF THE MEMBER DOESN'T EXIST
-					nameField.setText("Chris Poon");
-					phoneField.setText("12345678");
-					houseField.setText("1234");
-					streetField.setText("ayy lmao street");
-					postalCodeField.setText("A1B2C3");
-					cityField.setText("Vancouver");
-					provField.setText("BC");
-					points.setText("over 9000");
-					
+					try {
+						int memberId = Integer.parseInt(input);
+						List<Map<String, String>> member = memberService.getMemberById(memberId);
+						if (member.isEmpty()) {
+							errorPopup("This member does not exist!");
+						} else {
+							nameField.setText(member.get(0).get("Name"));
+							phoneField.setText(member.get(0).get("Phone"));
+							houseField.setText(member.get(0).get("HouseNo"));
+							streetField.setText(member.get(0).get("Street"));
+							postalCodeField.setText(member.get(0).get("PostalCode"));
+							cityField.setText(member.get(0).get("City"));
+							provField.setText(member.get(0).get("Province"));
+							points.setText(member.get(0).get("PointBalance"));
+						}
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid member ID!");
+						memberField.clear();
+					}
 				}
 			}
 		});
