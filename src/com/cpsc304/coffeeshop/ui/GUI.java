@@ -604,7 +604,35 @@ public class GUI extends Application {
 				}
 			}
 		});
-        managerBar.getChildren().addAll(managerId, managerField, managerButton, managerBarSeparator, transactionId, transactionField, deleteTransaction);
+        final Label pointsLabel = new Label("Points:");
+        pointsLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField pointsField = new TextField();
+        Button updatePointsGenerated = new Button("Update Points");
+        updatePointsGenerated.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String transactionInput = transactionField.getText();
+				String pointsInput = pointsField.getText();
+				if (transactionInput.isEmpty() || pointsInput.isEmpty()) {
+					errorPopup("Please input a transaction ID or points value!");
+				} else {
+					try {
+						int transactionId = Integer.parseInt(transactionInput);
+						int reward = Integer.parseInt(pointsInput);
+						if (reward < 1) {
+							errorPopup("Please insert a point value greater than 0");
+						} else {
+							managerService.updateTransactionPointReward(transactionId, reward);
+						}
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid transaction ID or points value!");
+						transactionField.clear();
+					} catch (SQLException e) {
+						errorPopup("Update failed because you cannot delete drink transactions!");
+					}
+				}
+			}
+		});
+        managerBar.getChildren().addAll(managerId, managerField, managerButton, managerBarSeparator, transactionId, transactionField, deleteTransaction, pointsLabel, pointsField, updatePointsGenerated);
         
         HBox optionBar = new HBox();
         optionBar.setSpacing(BAR_HBOX_SPACING);
@@ -638,15 +666,47 @@ public class GUI extends Application {
         startDateField.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
         startDateField.getCalendarView().setShowWeeks(false);
         // TODO: Implement datePicker
-        final Separator dateBarSeparator = new Separator();
-        dateBarSeparator.setOrientation(Orientation.VERTICAL);
+        final Separator dateBarSeparator1 = new Separator();
+        dateBarSeparator1.setOrientation(Orientation.VERTICAL);
         final Label endDateLabel = new Label("End Date:");
         endDateLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final DatePicker endDateField = new DatePicker(Locale.ENGLISH);
         endDateField.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
         endDateField.getCalendarView().setShowWeeks(false);
         // TODO: Implement datePicker
-        dateBar.getChildren().addAll(startDateLabel, startDateField, dateBarSeparator, endDateLabel, endDateField);       
+        final Separator dateBarSeparator2 = new Separator();
+        dateBarSeparator2.setOrientation(Orientation.VERTICAL);
+        Button maxButton = new Button("Find Best Average Customer");
+        maxButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				try {
+					Map<String, String> bestCustomer = managerService.getSpecialCustomer(true);
+					StringBuilder sb = new StringBuilder();
+					sb.append("Member ID: " + bestCustomer.get("MemberId") + "\n");
+					sb.append("Value: $" + bestCustomer.get("Value") + "\n");
+					sb.append("Name: " + bestCustomer.get("Name"));
+					errorPopup(sb.toString());
+				} catch (SQLException e) {
+					e.printStackTrace();;
+				};
+			}
+		});
+        Button minButton = new Button("Find Worst Average Customer");
+        minButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				try {
+					Map<String, String> bestCustomer = managerService.getSpecialCustomer(false);
+					StringBuilder sb = new StringBuilder();
+					sb.append("Member ID: " + bestCustomer.get("MemberId") + "\n");
+					sb.append("Value: $" + bestCustomer.get("Value") + "\n");
+					sb.append("Name: " + bestCustomer.get("Name"));
+					errorPopup(sb.toString());
+				} catch (SQLException e) {
+					e.printStackTrace();;
+				};
+			}
+		});
+        dateBar.getChildren().addAll(startDateLabel, startDateField, dateBarSeparator1, endDateLabel, endDateField, dateBarSeparator2, maxButton, minButton);       
     	
         final VBox vbox = new VBox();
         vbox.setSpacing(MAIN_VBOX_SPACING);

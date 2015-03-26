@@ -30,6 +30,21 @@ public class ManagerServiceImpl {
             }
         }
 	}
+	
+	public void updateTransactionPointReward(int transactionNo, int reward) throws SQLException {
+		String query = "UPDATE transaction t SET t.pointsgenerated = ? WHERE t.transactionNo = ?";
+		PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, reward);
+            stmt.setInt(2, transactionNo);
+            stmt.execute();
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+        }
+	}
 
     public List<Map<String, String>> getTransactionBySinWithDate(int SinNo, Date start_date, Date end_date) throws SQLException {
         return genericGetTransactionWithDate(SinNo, "SinNo", start_date, end_date);
@@ -171,4 +186,27 @@ public class ManagerServiceImpl {
         return null;
     }
 
+    public Map<String, String> getSpecialCustomer(boolean max) throws SQLException {
+    	String minOrMax = (max ? "MAX" : "MIN");
+    	String query = "SELECT m.memberid, " + minOrMax + "(a.average) minmax, m.name FROM (SELECT Memberid, AVG(moneycost) average FROM TRANSACTION GROUP BY memberid) a, member m WHERE m.memberid = a.memberid";
+
+    	Map<String, String> resultData = new HashMap<String, String>();
+        PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+            if (rs != null) {
+            	while (rs.next()) {
+	                resultData.put("MemberId", rs.getString("MemberId"));
+	                resultData.put("Value", "" + rs.getInt("minmax"));
+	                resultData.put("Name", rs.getString("name"));
+            	}
+            }
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+        }
+        return resultData;
+    }
 }
