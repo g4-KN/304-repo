@@ -3,6 +3,7 @@ package com.cpsc304.coffeeshop.ui;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -73,8 +74,8 @@ public class GUI extends Application {
 	}
 	
 	public void setUpViewStage() {
-		stage.setWidth(1200);
-		stage.setHeight(700);
+		stage.setWidth(1350);
+		stage.setHeight(650);
 	}
 	
 	public void errorPopup(String msg) {
@@ -576,10 +577,6 @@ public class GUI extends Application {
         
         HBox managerBar = new HBox();
         managerBar.setSpacing(BAR_HBOX_SPACING);
-        Button summaryButton = new Button("Get Summary");
-        // TODO: Make popup of summary
-        final Separator managerBarSeparator = new Separator();
-        managerBarSeparator.setOrientation(Orientation.VERTICAL);
         final Label transactionId = new Label("Transaction ID:");
         transactionId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final TextField transactionField = new TextField();
@@ -630,7 +627,7 @@ public class GUI extends Application {
 				}
 			}
 		});
-        managerBar.getChildren().addAll(summaryButton, managerBarSeparator, transactionId, transactionField, deleteTransaction, pointsLabel, pointsField, updatePointsGenerated);
+        managerBar.getChildren().addAll(transactionId, transactionField, deleteTransaction, pointsLabel, pointsField, updatePointsGenerated);
         
         HBox dateBar = new HBox();
         dateBar.setSpacing(BAR_HBOX_SPACING);
@@ -715,6 +712,43 @@ public class GUI extends Application {
 				}
 			}
 		});
+        Button summaryButton = new Button("Get Summary");
+        summaryButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String storeString = storeIdField.getText();
+				if (storeString.isEmpty()) {
+					errorPopup("Please input an store ID!");
+				} else {
+					try {
+						int storeId = Integer.parseInt(storeString);
+						Calendar c = Calendar.getInstance();
+						c.add(Calendar.MONTH, -1);
+						java.sql.Date sqlStartDate = new java.sql.Date(c.getTimeInMillis());
+						
+						String totalMoney = managerService.getTotalMoneyByStoreWithDate(storeId, sqlStartDate, null);
+						String totalPoints = managerService.getTotalPointByStoreWithDate(storeId, sqlStartDate, null);
+						String totalTrans = managerService.getTotalTransactionByStoreWithDate(storeId, sqlStartDate, null);
+						String totalSalary = managerService.getTotalSalaryByStore(storeId);
+						int dollarAmount = Integer.parseInt(totalMoney);
+						int salaryAmount = Integer.parseInt(totalSalary);
+						
+						StringBuilder sb = new StringBuilder();
+						sb.append("-Summary-\n");
+						sb.append("Total Transactions: " + (totalTrans.isEmpty() ? "NO SALES" : totalTrans) + "\n");
+						sb.append("Total Money Sales: $" + (totalMoney.isEmpty() ? "NO SALES" : totalMoney) + "\n");
+						sb.append("Total Point Sales: " + (totalPoints.isEmpty() ? "NO SALES" : totalPoints) + "\n");
+						sb.append("Total Profit: $" + (dollarAmount - salaryAmount));
+						errorPopup(sb.toString());
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid store ID!");
+						transactionField.clear();
+					} catch (SQLException e) {
+						e.printStackTrace();
+						errorPopup("Query failed!");
+					}
+				}
+			}
+		});
         final Separator optionBarSeparator2 = new Separator();
         optionBarSeparator2.setOrientation(Orientation.VERTICAL);
         final Label memberId = new Label("Member ID:");
@@ -752,7 +786,7 @@ public class GUI extends Application {
 				}
 			}
 		});
-        optionBar.getChildren().addAll(employeeSin, empSinField, findTransactionsForEmployee, optionBarSeparator1, storeIdLabel, storeIdField, storeTransactionButton, optionBarSeparator2, memberId, memberIdField, findTransactionsForMember);
+        optionBar.getChildren().addAll(employeeSin, empSinField, findTransactionsForEmployee, optionBarSeparator1, storeIdLabel, storeIdField, storeTransactionButton, summaryButton, optionBarSeparator2, memberId, memberIdField, findTransactionsForMember);
         
         final Separator dateBarSeparator2 = new Separator();
         dateBarSeparator2.setOrientation(Orientation.VERTICAL);
@@ -762,9 +796,7 @@ public class GUI extends Application {
 				try {
 					Map<String, String> bestCustomer = managerService.getSpecialCustomer(true);
 					StringBuilder sb = new StringBuilder();
-					sb.append("Member ID: " + bestCustomer.get("MemberId") + "\n");
 					sb.append("Value: $" + bestCustomer.get("Value") + "\n");
-					sb.append("Name: " + bestCustomer.get("Name"));
 					errorPopup(sb.toString());
 				} catch (SQLException e) {
 					e.printStackTrace();;
@@ -777,9 +809,7 @@ public class GUI extends Application {
 				try {
 					Map<String, String> bestCustomer = managerService.getSpecialCustomer(false);
 					StringBuilder sb = new StringBuilder();
-					sb.append("Member ID: " + bestCustomer.get("MemberId") + "\n");
 					sb.append("Value: $" + bestCustomer.get("Value") + "\n");
-					sb.append("Name: " + bestCustomer.get("Name"));
 					errorPopup(sb.toString());
 				} catch (SQLException e) {
 					e.printStackTrace();;

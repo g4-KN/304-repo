@@ -177,7 +177,7 @@ public class ManagerServiceImpl {
 
     public Map<String, String> getSpecialCustomer(boolean max) throws SQLException {
     	String minOrMax = (max ? "MAX" : "MIN");
-    	String query = "SELECT m.memberid, " + minOrMax + "(a.average) minmax, m.name FROM (SELECT Memberid, AVG(moneycost) average FROM TRANSACTION GROUP BY memberid) a, member m WHERE m.memberid = a.memberid";
+    	String query = "SELECT " + minOrMax + "(a.average) minmax FROM (SELECT Memberid, AVG(moneycost) average FROM TRANSACTION GROUP BY memberid) a, member m WHERE m.memberid = a.memberid";
 
     	Map<String, String> resultData = new HashMap<String, String>();
         PreparedStatement stmt = null;
@@ -186,9 +186,7 @@ public class ManagerServiceImpl {
             ResultSet rs = stmt.executeQuery();
             if (rs != null) {
             	while (rs.next()) {
-	                resultData.put("MemberId", rs.getString("MemberId"));
-	                resultData.put("Value", "" + rs.getInt("minmax"));
-	                resultData.put("Name", rs.getString("name"));
+	                resultData.put("Value", "" + rs.getBigDecimal("minmax"));
             	}
             }
         } finally {
