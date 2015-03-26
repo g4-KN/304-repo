@@ -576,10 +576,8 @@ public class GUI extends Application {
         
         HBox managerBar = new HBox();
         managerBar.setSpacing(BAR_HBOX_SPACING);
-        final Label managerId = new Label("Manager ID:");
-        managerId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
-        final TextField managerField = new TextField();
-        Button managerButton = new Button("Get Manager");
+        Button summaryButton = new Button("Get Summary");
+        // TODO: Make popup of summary
         final Separator managerBarSeparator = new Separator();
         managerBarSeparator.setOrientation(Orientation.VERTICAL);
         final Label transactionId = new Label("Transaction ID:");
@@ -632,7 +630,7 @@ public class GUI extends Application {
 				}
 			}
 		});
-        managerBar.getChildren().addAll(managerId, managerField, managerButton, managerBarSeparator, transactionId, transactionField, deleteTransaction, pointsLabel, pointsField, updatePointsGenerated);
+        managerBar.getChildren().addAll(summaryButton, managerBarSeparator, transactionId, transactionField, deleteTransaction, pointsLabel, pointsField, updatePointsGenerated);
         
         HBox optionBar = new HBox();
         optionBar.setSpacing(BAR_HBOX_SPACING);
@@ -640,10 +638,33 @@ public class GUI extends Application {
         employeeSin.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final TextField empSinField = new TextField();
         Button findTransactionsForEmployee = new Button("Get Transactions");
-        // TODO: Add action handler to put stuff into the table
+        findTransactionsForEmployee.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String sinString = empSinField.getText();
+				if (sinString.isEmpty()) {
+					errorPopup("Please input an employee SIN!");
+				} else {
+					try {
+						int sinNo = Integer.parseInt(sinString);
+						List<Transaction> transactions = managerService.getTransactionBySinWithDate(sinNo, null, null);
+						ObservableList<Transaction> data = FXCollections.observableList(transactions);
+						transactionTable.setItems(data);
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid employee SIN!");
+						transactionField.clear();
+					} catch (SQLException e) {
+						e.printStackTrace();
+						errorPopup("Query failed!");
+					}
+				}
+			}
+		});
         final Separator optionBarSeparator1 = new Separator();
         optionBarSeparator1.setOrientation(Orientation.VERTICAL);
-        Button storeTransactionButton = new Button("Get Store Transactions");
+        final Label storeIdLabel = new Label("Store ID:");
+        storeIdLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField storeIdField = new TextField();
+        Button storeTransactionButton = new Button("Get Transactions");
         // TODO: Add action handler to put stuff into the table
         final Separator optionBarSeparator2 = new Separator();
         optionBarSeparator2.setOrientation(Orientation.VERTICAL);
@@ -652,11 +673,7 @@ public class GUI extends Application {
         final TextField memberIdField = new TextField();
         Button findTransactionsForMember = new Button("Get Transactions");
         // TODO: Add action handler to put stuff into the table (put sum into popup?)
-        final Separator optionBarSeparator3 = new Separator();
-        optionBarSeparator3.setOrientation(Orientation.VERTICAL);
-        Button summaryButton = new Button("Get Summary");
-        // TODO: Make popup of summary
-        optionBar.getChildren().addAll(employeeSin, empSinField, findTransactionsForEmployee, optionBarSeparator1, storeTransactionButton, optionBarSeparator2, memberId, memberIdField, findTransactionsForMember, optionBarSeparator3, summaryButton);
+        optionBar.getChildren().addAll(employeeSin, empSinField, findTransactionsForEmployee, optionBarSeparator1, storeIdLabel, storeIdField, storeTransactionButton, optionBarSeparator2, memberId, memberIdField, findTransactionsForMember);
         
         HBox dateBar = new HBox();
         dateBar.setSpacing(BAR_HBOX_SPACING);

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.cpsc304.coffeeshop.database.LocalConnection;
+import com.cpsc304.coffeeshop.objects.Transaction;
 
 public class ManagerServiceImpl {
 	
@@ -46,15 +47,15 @@ public class ManagerServiceImpl {
         }
 	}
 
-    public List<Map<String, String>> getTransactionBySinWithDate(int SinNo, Date start_date, Date end_date) throws SQLException {
+    public List<Transaction> getTransactionBySinWithDate(int SinNo, Date start_date, Date end_date) throws SQLException {
         return genericGetTransactionWithDate(SinNo, "SinNo", start_date, end_date);
     }
 
-    public List<Map<String, String>> getTransactionByStoreWithDate(int StoreId, Date start_date, Date end_date) throws SQLException {
+    public List<Transaction> getTransactionByStoreWithDate(int StoreId, Date start_date, Date end_date) throws SQLException {
         return genericGetTransactionWithDate(StoreId, "StoreId", start_date, end_date);
     }
 
-    public List<Map<String, String>> getTransactionByMemberWithDate(int MemberId, Date start_date, Date end_date) throws SQLException {
+    public List<Transaction> getTransactionByMemberWithDate(int MemberId, Date start_date, Date end_date) throws SQLException {
         return genericGetTransactionWithDate(MemberId, "MemberId", start_date, end_date);
     }
 
@@ -117,32 +118,26 @@ public class ManagerServiceImpl {
                 nm.put(target, "" + rs.getInt(target));
                 resultData.add(nm);
             }
+            rs.close();
         }
         return resultData;
     }
 
 
-    public List<Map<String, String>> genericGetTransactionWithDate(int id, String column, Date start_date, Date end_date) throws SQLException {
+    public List<Transaction> genericGetTransactionWithDate(int id, String column, Date start_date, Date end_date) throws SQLException {
         String query = "select * from Transaction where " + column + " = ?";
 
-        List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
+        List<Transaction> resultData = new ArrayList<Transaction>();
 
         ResultSet rs = executeQueryWithDate(id, query, start_date, end_date);
         if (rs != null) {
             while (rs.next()) {
                 //TransactionNo | StoreId | pointsGenerated | Date | MemberId | SinNo | moneyCost | pointCost
                 //System.out.println(rs.getString("Name"));
-                Map<String, String> nm = new HashMap<>();
-                nm.put("TransactionNo", "" + rs.getInt("TransactionNo"));
-                nm.put("StoreId", "" + rs.getInt("StoreId"));
-                nm.put("pointsGenerated", "" + rs.getInt("pointsGenerated"));
-                nm.put("Date", rs.getDate("Date").toString());
-                nm.put("MemberId", "" + rs.getInt("MemberId"));
-                nm.put("SinNo", "" + rs.getInt("SinNo"));
-                nm.put("moneyCost", "" + rs.getBigDecimal("moneyCost"));
-                nm.put("pointCost", "" + rs.getInt("pointCost"));
-                resultData.add(nm);
+                Transaction t = new Transaction("" + rs.getInt("TransactionNo"), "" + rs.getInt("pointsGenerated"), rs.getDate("Date").toString(), "" + rs.getInt("StoreId"), "" + rs.getInt("MemberId"), "" + rs.getInt("SinNo"), "" + rs.getInt("pointCost"), "" + rs.getBigDecimal("moneyCost"));
+                resultData.add(t);
             }
+            rs.close();
         }
         return resultData;
     }
@@ -170,18 +165,16 @@ public class ManagerServiceImpl {
                 stmt = connection.prepareStatement(query);
                 stmt.setInt(1, id);
                 stmt.setDate(2, end_date);
+            } else {
+            	stmt = connection.prepareStatement(query);
+                stmt.setInt(1, id);
             }
 
             ResultSet rs = stmt.executeQuery();
-
             return rs;
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
         }
         return null;
     }
