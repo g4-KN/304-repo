@@ -667,7 +667,6 @@ public class GUI extends Application {
 						errorPopup("Please input a valid employee SIN!");
 						transactionField.clear();
 					} catch (SQLException e) {
-						e.printStackTrace();
 						errorPopup("Query failed!");
 					}
 				}
@@ -706,7 +705,6 @@ public class GUI extends Application {
 						errorPopup("Please input a valid store ID!");
 						transactionField.clear();
 					} catch (SQLException e) {
-						e.printStackTrace();
 						errorPopup("Query failed!");
 					}
 				}
@@ -743,7 +741,6 @@ public class GUI extends Application {
 						errorPopup("Please input a valid store ID!");
 						transactionField.clear();
 					} catch (SQLException e) {
-						e.printStackTrace();
 						errorPopup("Query failed!");
 					}
 				}
@@ -780,7 +777,6 @@ public class GUI extends Application {
 						errorPopup("Please input a valid member ID!");
 						transactionField.clear();
 					} catch (SQLException e) {
-						e.printStackTrace();
 						errorPopup("Query failed!");
 					}
 				}
@@ -799,7 +795,7 @@ public class GUI extends Application {
 					sb.append("Value: $" + bestCustomer.get("Value") + "\n");
 					errorPopup(sb.toString());
 				} catch (SQLException e) {
-					e.printStackTrace();;
+					errorPopup("Query failed!");
 				};
 			}
 		});
@@ -812,7 +808,7 @@ public class GUI extends Application {
 					sb.append("Value: $" + bestCustomer.get("Value") + "\n");
 					errorPopup(sb.toString());
 				} catch (SQLException e) {
-					e.printStackTrace();;
+					errorPopup("Query failed!");
 				};
 			}
 		});

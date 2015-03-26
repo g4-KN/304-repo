@@ -19,7 +19,7 @@ public class CustomerServiceImpl {
 	}
 	
 	 public List<Store> showStoreInfo() throws SQLException {
-	        String query = "SELECT * FROM store s, postalcodereference p WHERE s.postalcode = p.postalcode";
+	        String query = "SELECT * FROM store s INNER JOIN postalcodereference p ON s.postalcode = p.postalcode";
 	        List<Store> resultData = new ArrayList<Store>();
 	        PreparedStatement stmt = null;
 	        try {
@@ -97,7 +97,7 @@ public class CustomerServiceImpl {
 	 }
 	 
 	 public List<Map<String, String>> showDrinkMenuByStoreId(int storeId) throws SQLException {
-	        String query = "SELECT d.drinkName, d.size, d.price, d.pointCost FROM drink d, drinkMenu dm WHERE dm.drinkName = d.drinkName AND dm.storeId = ?";
+	        String query = "SELECT d.drinkName, d.size, d.price, d.pointCost FROM drink d INNER JOIN drinkMenu dm ON dm.drinkName = d.drinkName WHERE dm.storeId = ?";
 	        List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
 	        PreparedStatement stmt = null;
 	        try {
@@ -127,7 +127,7 @@ public class CustomerServiceImpl {
 	 }
 	 public List<Map<String, String>> showFoodMenuByStoreId(int storeId) throws SQLException {
 		 // joining tables together
-	        String query = "SELECT f.foodName, f.price, f.pointCost FROM food f, foodMenu fm WHERE fm.foodName = f.foodName AND fm.storeId = ?";
+	        String query = "SELECT f.foodName, f.price, f.pointCost FROM food f INNER JOIN foodMenu fm ON fm.foodName = f.foodName WHERE fm.storeId = ?";
 	        List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
 	        PreparedStatement stmt = null;
 	        try {
