@@ -632,6 +632,21 @@ public class GUI extends Application {
 		});
         managerBar.getChildren().addAll(summaryButton, managerBarSeparator, transactionId, transactionField, deleteTransaction, pointsLabel, pointsField, updatePointsGenerated);
         
+        HBox dateBar = new HBox();
+        dateBar.setSpacing(BAR_HBOX_SPACING);
+        final Label startDateLabel = new Label("Start Date:");
+        startDateLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final DatePicker startDateField = new DatePicker(Locale.ENGLISH);
+        startDateField.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+        startDateField.getCalendarView().setShowWeeks(false);
+        final Separator dateBarSeparator1 = new Separator();
+        dateBarSeparator1.setOrientation(Orientation.VERTICAL);
+        final Label endDateLabel = new Label("End Date:");
+        endDateLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final DatePicker endDateField = new DatePicker(Locale.ENGLISH);
+        endDateField.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+        endDateField.getCalendarView().setShowWeeks(false);
+        
         HBox optionBar = new HBox();
         optionBar.setSpacing(BAR_HBOX_SPACING);
         final Label employeeSin = new Label("Employee SIN:");
@@ -646,7 +661,9 @@ public class GUI extends Application {
 				} else {
 					try {
 						int sinNo = Integer.parseInt(sinString);
-						List<Transaction> transactions = managerService.getTransactionBySinWithDate(sinNo, null, null);
+						java.sql.Date sqlStartDate = (startDateField.getSelectedDate() != null ? new java.sql.Date(startDateField.getSelectedDate().getTime()) : null);
+						java.sql.Date sqlFinDate = (endDateField.getSelectedDate() != null ? new java.sql.Date(endDateField.getSelectedDate().getTime()) : null);
+						List<Transaction> transactions = managerService.getTransactionBySinWithDate(sinNo, sqlStartDate, sqlFinDate);
 						ObservableList<Transaction> data = FXCollections.observableList(transactions);
 						transactionTable.setItems(data);
 					} catch (NumberFormatException nfe) {
@@ -665,32 +682,78 @@ public class GUI extends Application {
         storeIdLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final TextField storeIdField = new TextField();
         Button storeTransactionButton = new Button("Get Transactions");
-        // TODO: Add action handler to put stuff into the table
+        storeTransactionButton.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String storeString = storeIdField.getText();
+				if (storeString.isEmpty()) {
+					errorPopup("Please input an store ID!");
+				} else {
+					try {
+						int storeId = Integer.parseInt(storeString);
+						java.sql.Date sqlStartDate = (startDateField.getSelectedDate() != null ? new java.sql.Date(startDateField.getSelectedDate().getTime()) : null);
+						java.sql.Date sqlFinDate = (endDateField.getSelectedDate() != null ? new java.sql.Date(endDateField.getSelectedDate().getTime()) : null);
+						List<Transaction> transactions = managerService.getTransactionByStoreWithDate(storeId, sqlStartDate, sqlFinDate);
+						ObservableList<Transaction> data = FXCollections.observableList(transactions);
+						transactionTable.setItems(data);
+						
+						String totalMoney = managerService.getTotalMoneyByStoreWithDate(storeId, sqlStartDate, sqlFinDate);
+						String totalPoints = managerService.getTotalPointByStoreWithDate(storeId, sqlStartDate, sqlFinDate);
+						String totalTrans = managerService.getTotalTransactionByStoreWithDate(storeId, sqlStartDate, sqlFinDate);
+						
+						StringBuilder sb = new StringBuilder();
+						sb.append("Total Money Sales: $" + (totalMoney.isEmpty() ? "NO SALES" : totalMoney) + "\n");
+						sb.append("Total Point Sales: " + (totalPoints.isEmpty() ? "NO SALES" : totalPoints) + "\n");
+						sb.append("Total Transactions: " + (totalTrans.isEmpty() ? "NO SALES" : totalTrans));
+						errorPopup(sb.toString());
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid store ID!");
+						transactionField.clear();
+					} catch (SQLException e) {
+						e.printStackTrace();
+						errorPopup("Query failed!");
+					}
+				}
+			}
+		});
         final Separator optionBarSeparator2 = new Separator();
         optionBarSeparator2.setOrientation(Orientation.VERTICAL);
         final Label memberId = new Label("Member ID:");
         memberId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final TextField memberIdField = new TextField();
         Button findTransactionsForMember = new Button("Get Transactions");
-        // TODO: Add action handler to put stuff into the table (put sum into popup?)
+        findTransactionsForMember.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String memberString = memberIdField.getText();
+				if (memberString.isEmpty()) {
+					errorPopup("Please input an member ID!");
+				} else {
+					try {
+						int memberId = Integer.parseInt(memberString);
+						java.sql.Date sqlStartDate = (startDateField.getSelectedDate() != null ? new java.sql.Date(startDateField.getSelectedDate().getTime()) : null);
+						java.sql.Date sqlFinDate = (endDateField.getSelectedDate() != null ? new java.sql.Date(endDateField.getSelectedDate().getTime()) : null);
+						List<Transaction> transactions = managerService.getTransactionByMemberWithDate(memberId, sqlStartDate, sqlFinDate);
+						ObservableList<Transaction> data = FXCollections.observableList(transactions);
+						transactionTable.setItems(data);
+						
+						String totalMoney = managerService.getTotalMoneyByMemberWithDate(memberId, sqlStartDate, sqlFinDate);
+						String totalPoints = managerService.getTotalPointByMemberWithDate(memberId, sqlStartDate, sqlFinDate);
+						
+						StringBuilder sb = new StringBuilder();
+						sb.append("Total Money Sales: $" + (totalMoney.isEmpty() ? "NO SALES" : totalMoney) + "\n");
+						sb.append("Total Point Sales: " + (totalPoints.isEmpty() ? "NO SALES" : totalPoints));
+						errorPopup(sb.toString());
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid member ID!");
+						transactionField.clear();
+					} catch (SQLException e) {
+						e.printStackTrace();
+						errorPopup("Query failed!");
+					}
+				}
+			}
+		});
         optionBar.getChildren().addAll(employeeSin, empSinField, findTransactionsForEmployee, optionBarSeparator1, storeIdLabel, storeIdField, storeTransactionButton, optionBarSeparator2, memberId, memberIdField, findTransactionsForMember);
         
-        HBox dateBar = new HBox();
-        dateBar.setSpacing(BAR_HBOX_SPACING);
-        final Label startDateLabel = new Label("Start Date:");
-        startDateLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
-        final DatePicker startDateField = new DatePicker(Locale.ENGLISH);
-        startDateField.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-        startDateField.getCalendarView().setShowWeeks(false);
-        // TODO: Implement datePicker
-        final Separator dateBarSeparator1 = new Separator();
-        dateBarSeparator1.setOrientation(Orientation.VERTICAL);
-        final Label endDateLabel = new Label("End Date:");
-        endDateLabel.setFont(Font.font("Arial", LABEL_FONT_SIZE));
-        final DatePicker endDateField = new DatePicker(Locale.ENGLISH);
-        endDateField.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-        endDateField.getCalendarView().setShowWeeks(false);
-        // TODO: Implement datePicker
         final Separator dateBarSeparator2 = new Separator();
         dateBarSeparator2.setOrientation(Orientation.VERTICAL);
         Button maxButton = new Button("Find Best Average Customer");

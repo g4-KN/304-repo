@@ -56,7 +56,7 @@ public class Transaction {
 	}
 	
 	public String getMemberId() {
-		return transactionNo.get();
+		return memberId.get();
 	}
 
 	public void setMemberId(String memberId) {

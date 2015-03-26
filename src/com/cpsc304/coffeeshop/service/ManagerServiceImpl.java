@@ -59,30 +59,30 @@ public class ManagerServiceImpl {
         return genericGetTransactionWithDate(MemberId, "MemberId", start_date, end_date);
     }
 
-    public List<Map<String, String>> getTotalMoneyByStoreWithDate(int StoreId, Date start_date, Date end_date) throws SQLException {
+    public String getTotalMoneyByStoreWithDate(int StoreId, Date start_date, Date end_date) throws SQLException {
         return genericGetAggregateWithDate(StoreId, "StoreId", "SUM(moneyCost)", start_date, end_date);
     }
 
-    public List<Map<String, String>> getTotalMoneyByMemberWithDate(int MemberId, Date start_date, Date end_date) throws SQLException {
+    public String getTotalMoneyByMemberWithDate(int MemberId, Date start_date, Date end_date) throws SQLException {
         return genericGetAggregateWithDate(MemberId, "MemberId", "SUM(moneyCost)",start_date, end_date);
     }
 
-    public List<Map<String, String>> getTotalPointByStoreWithDate(int StoreId, Date start_date, Date end_date) throws SQLException {
+    public String getTotalPointByStoreWithDate(int StoreId, Date start_date, Date end_date) throws SQLException {
         return genericGetAggregateWithDate(StoreId, "StoreId", "SUM(pointCost)", start_date, end_date);
     }
 
-    public List<Map<String, String>> getTotalPointByMemberWithDate(int MemberId, Date start_date, Date end_date) throws SQLException {
-        return genericGetAggregateWithDate(MemberId, "MemberId", "COUNT(TransactionNo)",start_date, end_date);
+    public String getTotalPointByMemberWithDate(int MemberId, Date start_date, Date end_date) throws SQLException {
+        return genericGetAggregateWithDate(MemberId, "MemberId", "SUM(pointCost)",start_date, end_date);
     }
 
-    public List<Map<String, String>> getTotalTransactionByStoreWithDate(int StoreId, Date start_date, Date end_date) throws SQLException {
-        return genericGetAggregateWithDate(StoreId, "StoreId", "SUM(pointCost)",start_date, end_date);
+    public String getTotalTransactionByStoreWithDate(int StoreId, Date start_date, Date end_date) throws SQLException {
+        return genericGetAggregateWithDate(StoreId, "StoreId", "COUNT(TransactionNo)",start_date, end_date);
     }
 
-    public List<Map<String, String>> getTotalSalaryByStore(int StoreId) throws SQLException {
+    public String getTotalSalaryByStore(int StoreId) throws SQLException {
         String query = "select SUM(Salary) from Employee where StoreId = ?";
 
-        List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
+        String resultData = "";
         PreparedStatement stmt = null;
         try{
             stmt = connection.prepareStatement(query);
@@ -90,9 +90,7 @@ public class ManagerServiceImpl {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                Map<String, String> nm = new HashMap<>();
-                nm.put("SUM(Salary)", "" + rs.getInt("SUM(Salary)"));
-                resultData.add(nm);
+                resultData = "" + rs.getInt("SUM(Salary)");
             }
 
         } catch (Exception e) {
@@ -106,17 +104,15 @@ public class ManagerServiceImpl {
         return resultData;
     }
 
-    public List<Map<String, String>> genericGetAggregateWithDate(int id, String column, String target, Date start_date, Date end_date) throws SQLException {
+    public String genericGetAggregateWithDate(int id, String column, String target, Date start_date, Date end_date) throws SQLException {
         String query = "select " + target + " from Transaction where " + column + " = ?";
 
-        List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
+        String resultData = "";
 
         ResultSet rs = executeQueryWithDate(id, query, start_date, end_date);
         if (rs != null) {
             if (rs.next()) {
-                Map<String, String> nm = new HashMap<>();
-                nm.put(target, "" + rs.getInt(target));
-                resultData.add(nm);
+                resultData = "" + rs.getInt(target);
             }
             rs.close();
         }
