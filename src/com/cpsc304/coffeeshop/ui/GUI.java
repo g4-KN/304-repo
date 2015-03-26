@@ -11,6 +11,7 @@ import java.util.Map;
 import com.cpsc304.coffeeshop.objects.Store;
 import com.cpsc304.coffeeshop.objects.Transaction;
 import com.cpsc304.coffeeshop.service.CustomerServiceImpl;
+import com.cpsc304.coffeeshop.service.ManagerServiceImpl;
 import com.cpsc304.coffeeshop.service.MemberServiceImpl;
 
 import eu.schudt.javafx.controls.calendar.DatePicker;
@@ -65,6 +66,7 @@ public class GUI extends Application {
 	
 	public MemberServiceImpl memberService = new MemberServiceImpl();
 	public CustomerServiceImpl customerService = new CustomerServiceImpl();
+	public ManagerServiceImpl managerService = new ManagerServiceImpl();
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -578,7 +580,31 @@ public class GUI extends Application {
         managerId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
         final TextField managerField = new TextField();
         Button managerButton = new Button("Get Manager");
-        managerBar.getChildren().addAll(managerId, managerField, managerButton);
+        final Separator managerBarSeparator = new Separator();
+        managerBarSeparator.setOrientation(Orientation.VERTICAL);
+        final Label transactionId = new Label("Transaction ID:");
+        transactionId.setFont(Font.font("Arial", LABEL_FONT_SIZE));
+        final TextField transactionField = new TextField();
+        Button deleteTransaction = new Button("Delete Transaction");
+        deleteTransaction.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				String transactionInput = transactionField.getText();
+				if (transactionInput.isEmpty()) {
+					errorPopup("Please input a transaction ID!");
+				} else {
+					try {
+						int transactionId = Integer.parseInt(transactionInput);
+						managerService.deleteTransaction(transactionId);
+					} catch (NumberFormatException nfe) {
+						errorPopup("Please input a valid transaction ID!");
+						transactionField.clear();
+					} catch (SQLException e) {
+						errorPopup("Update failed because you cannot delete drink transactions!");
+					}
+				}
+			}
+		});
+        managerBar.getChildren().addAll(managerId, managerField, managerButton, managerBarSeparator, transactionId, transactionField, deleteTransaction);
         
         HBox optionBar = new HBox();
         optionBar.setSpacing(BAR_HBOX_SPACING);

@@ -8,9 +8,6 @@ import java.util.Map;
 
 import com.cpsc304.coffeeshop.database.LocalConnection;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
 public class MemberServiceImpl {
 	
 	private Connection connection;

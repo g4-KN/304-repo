@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.cpsc304.coffeeshop.database.LocalConnection;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-
-import javax.xml.transform.Result;
 
 public class ManagerServiceImpl {
 	
@@ -20,7 +16,20 @@ public class ManagerServiceImpl {
 		LocalConnection lc = LocalConnection.getLocalConnection();
 		this.connection = lc.getConnection();
 	}
-
+	
+	public void deleteTransaction(int transactionNo) throws SQLException {
+		String query = "DELETE FROM transaction WHERE transactionno = ?";
+		PreparedStatement stmt = null;
+        try {
+            stmt = connection.prepareStatement(query);
+            stmt.setInt(1, transactionNo);
+            stmt.execute();
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+        }
+	}
 
     public List<Map<String, String>> getTransactionBySinWithDate(int SinNo, Date start_date, Date end_date) throws SQLException {
         return genericGetTransactionWithDate(SinNo, "SinNo", start_date, end_date);
