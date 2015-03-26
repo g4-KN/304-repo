@@ -196,4 +196,45 @@ public class ManagerServiceImpl {
         }
         return resultData;
     }
+
+    public List<Map<String, String>> getCustomerVisitedAllStore() throws SQLException {
+        String query = "select * from Member m, postalcodereference p " +
+                "where " +
+                "m.postalcode = p.postalcode and " +
+                "not exists (" +
+                "select s.StoreId from Store s where s.StoreId not in" +
+                "(select t.StoreId from Transaction t where t.MemberId = m.MemberId)" +
+                ")";
+
+        PreparedStatement stmt = null;
+        List<Map<String, String>> resultData = new ArrayList<Map<String, String>>();
+        try{
+            stmt = connection.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, String> nm = new HashMap<>();
+                    nm.put("Name", rs.getString("Name"));
+                    nm.put("Phone", "" + rs.getString("Phone"));
+                    nm.put("HouseNo", "" + rs.getInt("HouseNo"));
+                    nm.put("Street", rs.getString("Street"));
+                    nm.put("PostalCode", rs.getString("PostalCode"));
+                    nm.put("City", rs.getString("City"));
+                    nm.put("Province", rs.getString("Province"));
+                    nm.put("PointBalance", "" + rs.getInt("PointBalance"));
+
+                resultData.add(nm);
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+        }
+
+        return resultData;
+    }
 }
