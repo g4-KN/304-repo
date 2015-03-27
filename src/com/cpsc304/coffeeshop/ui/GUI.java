@@ -382,7 +382,7 @@ public class GUI extends Application {
 				String nameInput = nameField.getText();
 				String memberInput = memberField.getText();
 				if (nameInput.isEmpty()) {
-					errorPopup("Please input a phone number!");
+					errorPopup("Please input a name!");
 				} else if (memberInput.isEmpty()) {
 					errorPopup("Please input a member ID!");
 				} else {
@@ -390,7 +390,7 @@ public class GUI extends Application {
 						int memberId = Integer.parseInt(memberInput);
 						memberService.updateName(memberId, nameInput);
 					} catch (NumberFormatException nfe) {
-						errorPopup("Please input a valid member ID or phone number!");
+						errorPopup("Please input a valid member IDs!");
 						memberField.clear();
 					} catch (SQLException e) {
 						errorPopup("Update Failed");
@@ -411,7 +411,7 @@ public class GUI extends Application {
 				} else {
 					try {
 						int memberId = Integer.parseInt(memberInput);
-						int phoneNo = Integer.parseInt(phoneNoInput);
+						long phoneNo = Long.parseLong(phoneNoInput);
 						memberService.updatePhoneNumber(memberId, phoneNo);
 					} catch (NumberFormatException nfe) {
 						errorPopup("Please input a valid member ID or phone number!");
@@ -719,13 +719,14 @@ public class GUI extends Application {
 				} else {
 					try {
 						int storeId = Integer.parseInt(storeString);
-						Calendar c = Calendar.getInstance();
-						c.add(Calendar.MONTH, -1);
-						java.sql.Date sqlStartDate = new java.sql.Date(c.getTimeInMillis());
+						Calendar start = Calendar.getInstance();
+						start.add(Calendar.MONTH, -1);
+						java.sql.Date sqlStartDate = new java.sql.Date(start.getTimeInMillis());
+						java.sql.Date sqlEndDate = new java.sql.Date(Calendar.getInstance().getTimeInMillis());
 						
-						String totalMoney = managerService.getTotalMoneyByStoreWithDate(storeId, sqlStartDate, null);
-						String totalPoints = managerService.getTotalPointByStoreWithDate(storeId, sqlStartDate, null);
-						String totalTrans = managerService.getTotalTransactionByStoreWithDate(storeId, sqlStartDate, null);
+						String totalMoney = managerService.getTotalMoneyByStoreWithDate(storeId, sqlStartDate, sqlEndDate);
+						String totalPoints = managerService.getTotalPointByStoreWithDate(storeId, sqlStartDate, sqlEndDate);
+						String totalTrans = managerService.getTotalTransactionByStoreWithDate(storeId, sqlStartDate, sqlEndDate);
 						String totalSalary = managerService.getTotalSalaryByStore(storeId);
 						int dollarAmount = Integer.parseInt(totalMoney);
 						int salaryAmount = Integer.parseInt(totalSalary);
@@ -786,7 +787,7 @@ public class GUI extends Application {
         
         final Separator dateBarSeparator2 = new Separator();
         dateBarSeparator2.setOrientation(Orientation.VERTICAL);
-        Button maxButton = new Button("Find Best Average Customer");
+        Button maxButton = new Button("Best Average Purchases");
         maxButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
 				try {
@@ -799,7 +800,7 @@ public class GUI extends Application {
 				};
 			}
 		});
-        Button minButton = new Button("Find Worst Average Customer");
+        Button minButton = new Button("Worst Average Purchases");
         minButton.setOnAction(new EventHandler<ActionEvent> () {
 			public void handle(ActionEvent event) {
 				try {
@@ -812,7 +813,27 @@ public class GUI extends Application {
 				};
 			}
 		});
-        dateBar.getChildren().addAll(startDateLabel, startDateField, dateBarSeparator1, endDateLabel, endDateField, dateBarSeparator2, maxButton, minButton);       
+        final Separator dateBarSeparator3 = new Separator();
+        dateBarSeparator3.setOrientation(Orientation.VERTICAL);
+        Button orderedEveryDrink = new Button("Best Member");
+        orderedEveryDrink.setOnAction(new EventHandler<ActionEvent> () {
+			public void handle(ActionEvent event) {
+				try {
+					List<Map<String, String>> customers = managerService.getCustomerVisitedAllStore();
+					StringBuilder sb = new StringBuilder();
+					sb.append("-- Customers that have visited every store -- \n");
+					for (Map<String, String> customer : customers) {
+						sb.append(customer.get("Name") + " - ");
+						sb.append(customer.get("Phone") + "\n");
+					}
+					sb.setLength(sb.length() - 1);					
+					errorPopup(sb.toString());
+				} catch (SQLException e) {
+					errorPopup("Query failed!");
+				};
+			}
+		});
+        dateBar.getChildren().addAll(startDateLabel, startDateField, dateBarSeparator1, endDateLabel, endDateField, dateBarSeparator2, maxButton, minButton, dateBarSeparator3, orderedEveryDrink);       
     	
         final VBox vbox = new VBox();
         vbox.setSpacing(MAIN_VBOX_SPACING);
